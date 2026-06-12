@@ -3,6 +3,7 @@ export interface Bindings {
   KV: KVNamespace;
   MEDIA: R2Bucket;
   MESSAGES: Queue<QueueMessage>;
+  ASSETS?: Fetcher;
   APP_BASE_URL: string;
 
   // Secrets — set via `wrangler secret put`, absent in some local/dev modes

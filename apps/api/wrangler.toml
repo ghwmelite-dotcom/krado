@@ -1,26 +1,37 @@
-# Krado API — one Worker: REST, webhooks, cron, queue consumer, SSR booking pages.
-# Secrets (NEVER vars): PAYSTACK_SECRET_KEY, PAYSTACK_WEBHOOK_SECRET,
-# WA_ACCESS_TOKEN, WA_PHONE_NUMBER_ID, WA_VERIFY_TOKEN, SESSION_SIGNING_KEY
-# → `wrangler secret put <NAME>` per environment.
+# Krado API — one Worker: REST, webhooks, cron, queue consumer, SSR booking
+# pages, and the PWA via static assets.
+#
+# Secrets (NEVER vars) — set per env with `wrangler secret put <NAME>`:
+#   PAYSTACK_SECRET_KEY, PAYSTACK_WEBHOOK_SECRET,
+#   WA_ACCESS_TOKEN, WA_PHONE_NUMBER_ID, WA_VERIFY_TOKEN, SESSION_SIGNING_KEY
+#
+# Local dev overrides live in .dev.vars (gitignored) — see .dev.vars.example.
 
 name = "krado-api"
 main = "src/index.ts"
 compatibility_date = "2025-09-06"
 compatibility_flags = ["nodejs_compat"]
 account_id = "ea2eb3a9813660dfca2a60e594858538"
+workers_dev = true
+
+routes = [{ pattern = "krado.ohwpstudios.org", custom_domain = true }]
 
 [vars]
-APP_BASE_URL = "http://localhost:8787"
+APP_BASE_URL = "https://krado.ohwpstudios.org"
+
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "krado-db"
-database_id = "krado-db-local"
+database_id = "2a333e27-55f7-4ce0-b9bd-87fa78edcdfb"
 migrations_dir = "migrations"
 
 [[kv_namespaces]]
 binding = "KV"
-id = "krado-kv-local"
+id = "26c7e78bb4164e5cb091565a9a508dc1"
 
 [[r2_buckets]]
 binding = "MEDIA"
@@ -37,9 +48,5 @@ max_retries = 5
 [triggers]
 crons = ["*/5 * * * *", "0 20 * * *", "0 21 * * *"]
 
-[env.staging]
-name = "krado-api-staging"
-routes = [{ pattern = "krado.ohwpstudios.org", custom_domain = true }]
-
-[env.staging.vars]
-APP_BASE_URL = "https://krado.ohwpstudios.org"
+[observability]
+enabled = true

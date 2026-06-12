@@ -30,6 +30,12 @@ app.route("/api/manual-claims", manualClaims);
 app.route("/api/nudges", nudges);
 app.route("/api/dashboard", dashboard);
 app.route("/media", media);
+// SPA fallback: deep links like /app/bookings have no asset file — serve the
+// PWA shell and let the client router take over.
+app.get("/app/*", async (c) => {
+  if (!c.env.ASSETS) return c.notFound();
+  return c.env.ASSETS.fetch(new Request(new URL("/app/index.html", c.req.url)));
+});
 // Registered last: /:handle catches everything that isn't /api, /media or a static asset.
 app.route("/", publicPage);
 app.route("/api/webhooks/paystack", paystackWebhook);
