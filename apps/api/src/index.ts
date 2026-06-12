@@ -7,6 +7,7 @@ import { artisan } from "./routes/artisan";
 import { bookingPublic } from "./routes/booking-public";
 import { bookingPay } from "./routes/booking-pay";
 import { paystackWebhook } from "./routes/webhooks-paystack";
+import { bookings } from "./routes/bookings";
 
 const app = new Hono<AppEnv>();
 
@@ -17,6 +18,7 @@ app.route("/api/onboard", onboard);
 app.route("/api/artisan", artisan);
 app.route("/api/p", bookingPublic);
 app.route("/api/bookings", bookingPay);
+app.route("/api/bookings", bookings);
 app.route("/api/webhooks/paystack", paystackWebhook);
 
 app.onError((err, c) => {
