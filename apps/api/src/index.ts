@@ -4,6 +4,7 @@ import type { AppEnv, Bindings, QueueMessage } from "./env";
 import { auth, me } from "./routes/auth";
 import { onboard } from "./routes/onboard";
 import { artisan } from "./routes/artisan";
+import { bookingPublic } from "./routes/booking-public";
 
 const app = new Hono<AppEnv>();
 
@@ -12,6 +13,7 @@ app.route("/api/auth", auth);
 app.route("/api/me", me);
 app.route("/api/onboard", onboard);
 app.route("/api/artisan", artisan);
+app.route("/api/p", bookingPublic);
 
 app.onError((err, c) => {
   console.error("unhandled", { path: c.req.path, message: (err as Error).message });
