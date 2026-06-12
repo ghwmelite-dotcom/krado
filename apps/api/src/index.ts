@@ -11,6 +11,7 @@ import { bookings } from "./routes/bookings";
 import { whatsappWebhook } from "./routes/webhooks-whatsapp";
 import { manualStart, manualClaims } from "./routes/manual-payments";
 import { nudges } from "./routes/nudges";
+import { dashboard } from "./routes/dashboard";
 
 const app = new Hono<AppEnv>();
 
@@ -25,6 +26,7 @@ app.route("/api/bookings", bookings);
 app.route("/api/bookings", manualStart);
 app.route("/api/manual-claims", manualClaims);
 app.route("/api/nudges", nudges);
+app.route("/api/dashboard", dashboard);
 app.route("/api/webhooks/paystack", paystackWebhook);
 app.route("/api/webhooks/whatsapp", whatsappWebhook);
 
