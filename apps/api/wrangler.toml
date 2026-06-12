@@ -1,0 +1,45 @@
+# Krado API — one Worker: REST, webhooks, cron, queue consumer, SSR booking pages.
+# Secrets (NEVER vars): PAYSTACK_SECRET_KEY, PAYSTACK_WEBHOOK_SECRET,
+# WA_ACCESS_TOKEN, WA_PHONE_NUMBER_ID, WA_VERIFY_TOKEN, SESSION_SIGNING_KEY
+# → `wrangler secret put <NAME>` per environment.
+
+name = "krado-api"
+main = "src/index.ts"
+compatibility_date = "2025-09-06"
+compatibility_flags = ["nodejs_compat"]
+account_id = "ea2eb3a9813660dfca2a60e594858538"
+
+[vars]
+APP_BASE_URL = "http://localhost:8787"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "krado-db"
+database_id = "krado-db-local"
+migrations_dir = "migrations"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "krado-kv-local"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "krado-media"
+
+[[queues.producers]]
+binding = "MESSAGES"
+queue = "krado-messages"
+
+[[queues.consumers]]
+queue = "krado-messages"
+max_retries = 5
+
+[triggers]
+crons = ["*/5 * * * *", "0 20 * * *", "0 21 * * *"]
+
+[env.staging]
+name = "krado-api-staging"
+routes = [{ pattern = "krado.ohwpstudios.org", custom_domain = true }]
+
+[env.staging.vars]
+APP_BASE_URL = "https://krado.ohwpstudios.org"

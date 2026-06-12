@@ -1,0 +1,27 @@
+{
+  "name": "@krado/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "db:migrate": "wrangler d1 migrations apply krado-db --local",
+    "db:migrate:staging": "wrangler d1 migrations apply krado-db --remote",
+    "db:seed": "wrangler d1 execute krado-db --local --file=./seed.sql",
+    "deploy:staging": "wrangler deploy"
+  },
+  "dependencies": {
+    "@krado/shared": "*",
+    "hono": "^4.7.0",
+    "nanoid": "^5.0.9",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.8.14",
+    "@cloudflare/workers-types": "^4.20250214.0",
+    "vitest": "^3.0.5",
+    "wrangler": "^4.0.0"
+  }
+}
