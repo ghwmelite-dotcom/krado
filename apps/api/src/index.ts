@@ -12,6 +12,8 @@ import { whatsappWebhook } from "./routes/webhooks-whatsapp";
 import { manualStart, manualClaims } from "./routes/manual-payments";
 import { nudges } from "./routes/nudges";
 import { dashboard } from "./routes/dashboard";
+import { publicPage } from "./routes/public-page";
+import { media } from "./routes/media";
 
 const app = new Hono<AppEnv>();
 
@@ -27,6 +29,9 @@ app.route("/api/bookings", manualStart);
 app.route("/api/manual-claims", manualClaims);
 app.route("/api/nudges", nudges);
 app.route("/api/dashboard", dashboard);
+app.route("/media", media);
+// Registered last: /:handle catches everything that isn't /api, /media or a static asset.
+app.route("/", publicPage);
 app.route("/api/webhooks/paystack", paystackWebhook);
 app.route("/api/webhooks/whatsapp", whatsappWebhook);
 
