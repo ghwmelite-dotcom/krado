@@ -1,0 +1,22 @@
+{
+  "name": "krado",
+  "private": true,
+  "version": "0.1.0",
+  "description": "WhatsApp-first, MoMo-native booking + daily-money platform for Ghanaian artisans",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "db:seed": "npm run db:seed -w apps/api",
+    "test": "npm test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "deploy:staging": "npm run deploy:staging -w apps/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  }
+}
