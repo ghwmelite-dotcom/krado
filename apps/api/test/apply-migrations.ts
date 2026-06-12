@@ -6,6 +6,9 @@ declare module "cloudflare:test" {
     KV: KVNamespace;
     MEDIA: R2Bucket;
     TEST_MIGRATIONS: D1Migration[];
+    PAYSTACK_SECRET_KEY: string;
+    PAYSTACK_WEBHOOK_SECRET: string;
+    SESSION_SIGNING_KEY: string;
   }
 }
 

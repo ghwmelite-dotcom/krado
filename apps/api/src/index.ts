@@ -5,6 +5,8 @@ import { auth, me } from "./routes/auth";
 import { onboard } from "./routes/onboard";
 import { artisan } from "./routes/artisan";
 import { bookingPublic } from "./routes/booking-public";
+import { bookingPay } from "./routes/booking-pay";
+import { paystackWebhook } from "./routes/webhooks-paystack";
 
 const app = new Hono<AppEnv>();
 
@@ -14,6 +16,8 @@ app.route("/api/me", me);
 app.route("/api/onboard", onboard);
 app.route("/api/artisan", artisan);
 app.route("/api/p", bookingPublic);
+app.route("/api/bookings", bookingPay);
+app.route("/api/webhooks/paystack", paystackWebhook);
 
 app.onError((err, c) => {
   console.error("unhandled", { path: c.req.path, message: (err as Error).message });
