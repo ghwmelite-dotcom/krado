@@ -9,6 +9,8 @@ declare module "cloudflare:test" {
     PAYSTACK_SECRET_KEY: string;
     PAYSTACK_WEBHOOK_SECRET: string;
     SESSION_SIGNING_KEY: string;
+    WA_VERIFY_TOKEN: string;
+    MESSAGES: Queue;
   }
 }
 

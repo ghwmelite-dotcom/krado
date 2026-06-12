@@ -8,6 +8,7 @@ import { bookingPublic } from "./routes/booking-public";
 import { bookingPay } from "./routes/booking-pay";
 import { paystackWebhook } from "./routes/webhooks-paystack";
 import { bookings } from "./routes/bookings";
+import { whatsappWebhook } from "./routes/webhooks-whatsapp";
 
 const app = new Hono<AppEnv>();
 
@@ -20,6 +21,7 @@ app.route("/api/p", bookingPublic);
 app.route("/api/bookings", bookingPay);
 app.route("/api/bookings", bookings);
 app.route("/api/webhooks/paystack", paystackWebhook);
+app.route("/api/webhooks/whatsapp", whatsappWebhook);
 
 app.onError((err, c) => {
   console.error("unhandled", { path: c.req.path, message: (err as Error).message });

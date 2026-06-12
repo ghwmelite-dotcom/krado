@@ -23,6 +23,8 @@ export interface QueueMessage {
   /** Positional template params ({{1}}, {{2}}, …) */
   params: string[];
   booking_id?: string;
+  /** message_log row created at enqueue time; consumer updates it */
+  log_id?: string;
 }
 
 export type AppEnv = { Bindings: Bindings; Variables: { artisanId?: string } };

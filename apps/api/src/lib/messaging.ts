@@ -7,12 +7,13 @@ import type { Bindings, QueueMessage } from "../env";
  */
 export async function enqueueTemplate(
   env: Bindings,
-  msg: Omit<QueueMessage, "kind">,
+  msg: Omit<QueueMessage, "kind" | "log_id">,
 ): Promise<void> {
+  const logId = `msg_${nanoid(12)}`;
   await env.DB.prepare(
     "INSERT INTO message_log (id, recipient, template, language, booking_id) VALUES (?, ?, ?, ?, ?)",
   )
-    .bind(`msg_${nanoid(12)}`, msg.recipient, msg.template, msg.language, msg.booking_id ?? null)
+    .bind(logId, msg.recipient, msg.template, msg.language, msg.booking_id ?? null)
     .run();
-  await env.MESSAGES.send({ kind: "whatsapp_template", ...msg });
+  await env.MESSAGES.send({ kind: "whatsapp_template", ...msg, log_id: logId });
 }
