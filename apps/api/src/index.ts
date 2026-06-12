@@ -2,12 +2,16 @@ import { Hono } from "hono";
 import type { AppEnv, Bindings, QueueMessage } from "./env";
 
 import { auth, me } from "./routes/auth";
+import { onboard } from "./routes/onboard";
+import { artisan } from "./routes/artisan";
 
 const app = new Hono<AppEnv>();
 
 app.get("/api/health", (c) => c.json({ ok: true, service: "krado-api" }));
 app.route("/api/auth", auth);
 app.route("/api/me", me);
+app.route("/api/onboard", onboard);
+app.route("/api/artisan", artisan);
 
 app.onError((err, c) => {
   console.error("unhandled", { path: c.req.path, message: (err as Error).message });
