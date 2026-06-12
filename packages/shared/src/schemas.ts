@@ -94,5 +94,7 @@ export const ArtisanPatch = z
     susu_mode: z.enum(["flat", "pct", "off"]),
     susu_value: z.number().int().min(0),
     hours: HoursJson,
+    accept_manual: z.boolean(),
+    bank_details: z.string().max(120).nullable(),
   })
   .partial();

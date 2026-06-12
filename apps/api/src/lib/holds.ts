@@ -56,6 +56,21 @@ export async function createHold(
   return { ok: true, hold };
 }
 
+/**
+ * Manual transfers take longer than a MoMo prompt — extend the hold so the
+ * client has time to send money and the artisan time to confirm.
+ */
+export async function extendHold(env: Bindings, hold: HoldRecord, ttlSeconds: number): Promise<HoldRecord> {
+  const extended: HoldRecord = {
+    ...hold,
+    expires_at: new Date(Date.now() + ttlSeconds * 1000).toISOString(),
+  };
+  const key = holdKey(hold.artisan_id, hold.date, hold.slot);
+  await env.KV.put(key, JSON.stringify(extended), { expirationTtl: ttlSeconds });
+  await env.KV.put(holdTokenKey(hold.token), key, { expirationTtl: ttlSeconds });
+  return extended;
+}
+
 export async function getHoldByToken(env: Bindings, token: string): Promise<HoldRecord | null> {
   const key = await env.KV.get(holdTokenKey(token));
   if (!key) return null;

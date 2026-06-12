@@ -9,6 +9,7 @@ import { bookingPay } from "./routes/booking-pay";
 import { paystackWebhook } from "./routes/webhooks-paystack";
 import { bookings } from "./routes/bookings";
 import { whatsappWebhook } from "./routes/webhooks-whatsapp";
+import { manualStart, manualClaims } from "./routes/manual-payments";
 
 const app = new Hono<AppEnv>();
 
@@ -20,6 +21,8 @@ app.route("/api/artisan", artisan);
 app.route("/api/p", bookingPublic);
 app.route("/api/bookings", bookingPay);
 app.route("/api/bookings", bookings);
+app.route("/api/bookings", manualStart);
+app.route("/api/manual-claims", manualClaims);
 app.route("/api/webhooks/paystack", paystackWebhook);
 app.route("/api/webhooks/whatsapp", whatsappWebhook);
 

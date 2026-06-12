@@ -20,6 +20,9 @@ artisan.patch("/", async (c) => {
     if (key === "hours") {
       sets.push("hours_json = ?");
       binds.push(JSON.stringify(value));
+    } else if (key === "accept_manual") {
+      sets.push("accept_manual = ?");
+      binds.push(value ? 1 : 0);
     } else {
       sets.push(`${key} = ?`);
       binds.push(value);

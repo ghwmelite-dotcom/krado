@@ -1,10 +1,9 @@
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
-import { formatGHS, minutesToLabel, slotToUtcIso } from "@krado/shared";
 import type { AppEnv, Bindings } from "../env";
 import { verifySignature, verifyTransaction } from "../lib/paystack";
-import { getHoldByToken, deleteHold, type HoldRecord } from "../lib/holds";
-import { enqueueTemplate } from "../lib/messaging";
+import { getHoldByToken, type HoldRecord } from "../lib/holds";
+import { lockBooking } from "../lib/locking";
 
 export const paystackWebhook = new Hono<AppEnv>();
 
@@ -57,7 +56,12 @@ paystackWebhook.post("/", async (c) => {
     return c.json({ ok: true, recon: "amount_mismatch" });
   }
 
-  await lockBooking(c.env, hold, verified.reference, verified.channel, verified.raw);
+  await lockBooking(c.env, hold, {
+    provider: "paystack",
+    reference: verified.reference,
+    channel: verified.channel ?? null,
+    raw_json: verified.raw,
+  });
   return c.json({ ok: true });
 });
 
@@ -77,75 +81,3 @@ async function flagRecon(
     .run();
 }
 
-/** The moment the deposit clears: hold → locked booking, in one batch. */
-async function lockBooking(
-  env: Bindings,
-  hold: HoldRecord,
-  reference: string,
-  channel: string | undefined,
-  rawVerify: string,
-): Promise<void> {
-  // Phone-first client upsert
-  let client = await env.DB.prepare("SELECT id FROM clients WHERE phone = ?")
-    .bind(hold.phone)
-    .first<{ id: string }>();
-  if (!client) {
-    client = { id: `cl_${nanoid(12)}` };
-    await env.DB.prepare("INSERT INTO clients (id, phone, name) VALUES (?, ?, ?)")
-      .bind(client.id, hold.phone, hold.client_name ?? null)
-      .run();
-  } else if (hold.client_name) {
-    await env.DB.prepare("UPDATE clients SET name = COALESCE(name, ?) WHERE id = ?")
-      .bind(hold.client_name, client.id)
-      .run();
-  }
-
-  const bookingId = `bk_${nanoid(12)}`;
-  const startsAt = slotToUtcIso(hold.date, hold.slot);
-
-  await env.DB.batch([
-    env.DB.prepare(
-      `INSERT INTO bookings (id, artisan_id, client_id, service_id, service_name, price, duration_min, deposit, starts_at, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'locked')`,
-    ).bind(
-      bookingId,
-      hold.artisan_id,
-      client.id,
-      hold.service_id,
-      hold.service_name,
-      hold.price,
-      hold.duration_min,
-      hold.deposit,
-      startsAt,
-    ),
-    env.DB.prepare(
-      `INSERT INTO payments (id, booking_id, reference, kind, amount, channel, status, raw_json)
-       VALUES (?, ?, ?, 'deposit', ?, ?, 'success', ?)`,
-    ).bind(`pay_${nanoid(12)}`, bookingId, reference, hold.deposit, channel ?? null, rawVerify),
-  ]);
-
-  await deleteHold(env, hold);
-
-  const artisan = await env.DB.prepare("SELECT shop_name, phone, language FROM artisans WHERE id = ?")
-    .bind(hold.artisan_id)
-    .first<{ shop_name: string; phone: string; language: "en" | "tw" }>();
-  if (!artisan) return;
-
-  const timeLabel = `${hold.date} ${minutesToLabel(hold.slot)}`;
-  const balance = hold.price - hold.deposit;
-
-  await enqueueTemplate(env, {
-    template: "wa_booking_confirmed_client",
-    language: artisan.language,
-    recipient: hold.phone,
-    params: [artisan.shop_name, timeLabel, formatGHS(hold.deposit), formatGHS(balance)],
-    booking_id: bookingId,
-  });
-  await enqueueTemplate(env, {
-    template: "wa_booking_confirmed_artisan",
-    language: artisan.language,
-    recipient: artisan.phone,
-    params: [hold.client_name ?? hold.phone, hold.service_name, timeLabel, formatGHS(hold.deposit)],
-    booking_id: bookingId,
-  });
-}

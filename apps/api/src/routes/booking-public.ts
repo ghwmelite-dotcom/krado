@@ -16,11 +16,14 @@ interface ArtisanRow {
   deposit_floor: number;
   hours_json: string;
   status: string;
+  accept_manual: number;
+  bank_details: string | null;
 }
 
 async function loadArtisan(env: AppEnv["Bindings"], handle: string): Promise<ArtisanRow | null> {
   return env.DB.prepare(
-    `SELECT id, handle, shop_name, area, language, deposit_pct, deposit_floor, hours_json, status
+    `SELECT id, handle, shop_name, area, language, deposit_pct, deposit_floor, hours_json, status,
+            accept_manual, bank_details
      FROM artisans WHERE handle = ? AND status = 'active'`,
   )
     .bind(handle)
@@ -47,6 +50,11 @@ bookingPublic.get("/:handle", async (c) => {
       ...s,
       deposit: depositFor(s.price, artisan.deposit_pct, artisan.deposit_floor),
     })),
+    payment_options: {
+      paystack: true,
+      manual_momo: artisan.accept_manual === 1,
+      bank: artisan.accept_manual === 1 && !!artisan.bank_details,
+    },
   });
 });
 
