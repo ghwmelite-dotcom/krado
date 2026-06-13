@@ -3,10 +3,15 @@ import { render, screen } from "@testing-library/react";
 import { GoalBar } from "../src/GoalBar";
 
 describe("GoalBar", () => {
-  it("renders the percentage and formatted GHS amounts", () => {
+  it("renders the percentage and the spec's money line — GHS 145 of 200", () => {
     render(<GoalBar label="Today's goal" earned={14500} goal={20000} />);
     expect(screen.getByText("73%")).toBeDefined();
-    expect(screen.getByText("GHS 145.00 of GHS 200.00")).toBeDefined();
+    expect(screen.getByText("GHS 145 of 200")).toBeDefined();
+  });
+
+  it("keeps decimals when they matter", () => {
+    render(<GoalBar label="Today's goal" earned={14550} goal={20000} />);
+    expect(screen.getByText("GHS 145.50 of 200")).toBeDefined();
   });
 
   it("caps the fill and readout at 100% when earnings exceed the goal", () => {

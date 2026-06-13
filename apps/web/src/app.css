@@ -47,6 +47,25 @@ h3 {
   gap: var(--krado-space-3);
 }
 
+/* One orchestrated entrance: direct children rise in, staggered. */
+@media (prefers-reduced-motion: no-preference) {
+  .app-shell__main > * {
+    animation: krado-rise 0.45s ease-out backwards;
+  }
+  .app-shell__main > *:nth-child(2) { animation-delay: 0.05s; }
+  .app-shell__main > *:nth-child(3) { animation-delay: 0.1s; }
+  .app-shell__main > *:nth-child(4) { animation-delay: 0.15s; }
+  .app-shell__main > *:nth-child(5) { animation-delay: 0.2s; }
+  .app-shell__main > *:nth-child(6) { animation-delay: 0.25s; }
+  .app-shell__main > *:nth-child(7) { animation-delay: 0.3s; }
+  @keyframes krado-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+}
+
 .app-shell__nav {
   position: sticky;
   bottom: 0;
@@ -136,6 +155,65 @@ h3 {
   border: 1px solid var(--krado-line);
   background: var(--krado-paper);
   box-shadow: var(--krado-shadow-sm);
+}
+
+/* the money hero — deep forest card anchoring the dashboard */
+.goal-hero {
+  position: relative;
+  background: var(--krado-forest-900);
+  border-radius: var(--krado-radius-lg);
+  padding: var(--krado-space-4) var(--krado-space-3) var(--krado-space-4);
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(4, 52, 44, 0.18), 0 14px 32px rgba(4, 52, 44, 0.22);
+}
+/* flat kente blocks in the corner — geometry, never clip-art */
+.goal-hero::before,
+.goal-hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 4px;
+  pointer-events: none;
+}
+.goal-hero::before {
+  width: 64px;
+  height: 64px;
+  background: var(--krado-gold-200);
+  opacity: 0.16;
+  top: -22px;
+  right: -18px;
+}
+.goal-hero::after {
+  width: 30px;
+  height: 30px;
+  background: var(--krado-forest-100);
+  opacity: 0.2;
+  top: 42px;
+  right: 28px;
+}
+.goal-hero .krado-goalbar__label {
+  color: var(--krado-forest-100);
+}
+.goal-hero .krado-goalbar__amounts {
+  color: var(--krado-paper);
+  font-size: 30px;
+  letter-spacing: -0.01em;
+}
+.goal-hero .krado-goalbar__track {
+  background: rgba(159, 225, 203, 0.22);
+}
+.goal-hero .krado-goalbar__fill {
+  background: var(--krado-forest-100);
+}
+.goal-hero .krado-goalbar--done .krado-goalbar__fill {
+  background: var(--krado-gold-200);
+}
+.goal-hero .krado-goalbar__pct {
+  background: rgba(159, 225, 203, 0.18);
+  color: var(--krado-forest-100);
+}
+.goal-hero .krado-goalbar--done .krado-goalbar__pct {
+  background: var(--krado-gold-200);
+  color: var(--krado-gold-900);
 }
 
 /* cards & sections */

@@ -54,6 +54,17 @@ export function CoinsIcon(props: IconProps) {
   );
 }
 
+export function PeopleIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+      <path d="M16 5.5a3.5 3.5 0 0 1 0 5" />
+      <path d="M17.5 14.5c2.1.8 3.5 2.9 3.5 5.5" />
+    </Svg>
+  );
+}
+
 export function ScissorsIcon(props: IconProps) {
   return (
     <Svg {...props}>

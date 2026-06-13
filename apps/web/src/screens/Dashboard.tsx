@@ -8,7 +8,7 @@ import {
   minutesToLabel,
   t,
 } from "@krado/shared";
-import { GoalBar, MetricTile, NudgeCard, SusuTile, TimelineItem } from "@krado/ui";
+import { CoinsIcon, GoalBar, MetricTile, NudgeCard, PeopleIcon, SusuTile, TimelineItem } from "@krado/ui";
 import { SettingsIcon } from "../components/SettingsIcon";
 import { api } from "../api";
 import { useLang } from "../lang";
@@ -34,7 +34,7 @@ function ShareLinkCard({ lang, handle }: { lang: Lang; handle: string }) {
       <p className="share-cta__note">{t(lang, "no_bookings_today")}</p>
       <div className="share-cta__row">
         <span className="share-cta__link">{link.replace(/^https?:\/\//, "")}</span>
-        <button type="button" className="krado-btn krado-btn--forest" onClick={() => void copy()}>
+        <button type="button" className="krado-btn krado-btn--gold" onClick={() => void copy()}>
           {copied ? t(lang, "copied") : t(lang, "copy_link")}
         </button>
       </div>
@@ -106,13 +106,23 @@ export function Dashboard() {
 
       {data.offline && <p className="banner banner--offline">{t(lang, "offline_cached")}</p>}
 
-      <div className="card">
+      <div className="goal-hero">
         <GoalBar label={t(lang, "goal_label")} earned={data.earned_today} goal={data.daily_goal} lang={lang} />
       </div>
 
       <div className="tile-row">
-        <MetricTile label={t(lang, "earnings_today")} value={formatGHS(data.earned_today)} />
-        <MetricTile label={t(lang, "clients_week")} value={String(data.clients_week)} />
+        <MetricTile
+          label={t(lang, "earnings_today")}
+          value={formatGHS(data.earned_today)}
+          icon={<CoinsIcon size={18} />}
+          tone="gold"
+        />
+        <MetricTile
+          label={t(lang, "clients_week")}
+          value={String(data.clients_week)}
+          icon={<PeopleIcon size={18} />}
+          tone="forest"
+        />
       </div>
 
       <SusuTile label={t(lang, "susu_week")} amountPesewas={data.susu_week} />

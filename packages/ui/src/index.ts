@@ -13,6 +13,7 @@ export {
   HomeIcon,
   CalendarIcon,
   CoinsIcon,
+  PeopleIcon,
   ScissorsIcon,
   LockIcon,
   CheckIcon,

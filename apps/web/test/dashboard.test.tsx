@@ -86,7 +86,7 @@ describe("Dashboard", () => {
     renderDashboard();
     // 12400 / 20000 = 62%
     expect(await screen.findByText("62%")).toBeDefined();
-    expect(screen.getByText("GHS 124.00 of GHS 200.00")).toBeDefined();
+    expect(screen.getByText("GHS 124 of 200")).toBeDefined();
   });
 
   it("renders the up-next bookings with client names and prices", async () => {

@@ -52,6 +52,14 @@
   border-radius: var(--krado-radius-pill);
   background: var(--krado-forest-900);
 }
+/* Goal reached: the bar turns gold. Numbers carry the emotion — no copy. */
+.krado-goalbar--done .krado-goalbar__fill {
+  background: var(--krado-gold-200);
+}
+.krado-goalbar--done .krado-goalbar__pct {
+  background: var(--krado-gold-100);
+  color: var(--krado-gold-900);
+}
 @media (prefers-reduced-motion: no-preference) {
   .krado-goalbar__fill {
     transition: width 300ms ease-out;
@@ -269,6 +277,19 @@
   background: var(--krado-clay-50);
   color: var(--krado-clay-800);
 }
+.krado-btn--gold {
+  background: var(--krado-gold-200);
+  color: var(--krado-gold-900);
+  box-shadow: 0 2px 0 var(--krado-gold-600);
+}
+.krado-btn--gold:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 var(--krado-gold-600), 0 8px 18px rgba(239, 159, 39, 0.25);
+}
+.krado-btn--gold:not(:disabled):active {
+  transform: none;
+  box-shadow: 0 1px 0 var(--krado-gold-600);
+}
 
 /* ---------- StyleCard ---------- */
 .krado-stylecard {
@@ -465,6 +486,7 @@
 
 /* ---------- SusuTile / MetricTile ---------- */
 .krado-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--krado-space-1);
@@ -473,10 +495,47 @@
   background: var(--krado-paper);
   border: 1px solid var(--krado-line);
   box-shadow: var(--krado-shadow-sm);
+  overflow: hidden;
+}
+.krado-tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  margin-bottom: var(--krado-space-1);
+}
+.krado-tile__icon--gold {
+  background: var(--krado-gold-100);
+  color: var(--krado-gold-800);
+}
+.krado-tile__icon--forest {
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+}
+.krado-tile__icon ~ .krado-tile__label::before {
+  display: none;
 }
 .krado-tile--susu {
   background: var(--krado-forest-50);
   border-color: var(--krado-forest-100);
+  padding-left: calc(var(--krado-space-3) + 12px);
+}
+.krado-tile--susu::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: repeating-linear-gradient(
+    0deg,
+    var(--krado-gold-200) 0 10px,
+    var(--krado-forest-900) 10px 14px,
+    var(--krado-forest-600) 14px 24px,
+    var(--krado-clay-600) 24px 28px
+  );
 }
 .krado-tile__label {
   display: flex;
