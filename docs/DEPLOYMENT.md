@@ -22,9 +22,13 @@ All wired in `apps/api/wrangler.toml`.
    wrangler secret put TELEGRAM_BOT_TOKEN       # from @BotFather
    wrangler secret put TELEGRAM_WEBHOOK_SECRET  # any random string; passed to setWebhook (step 4)
    wrangler secret put SESSION_SIGNING_KEY      # long random string
+   wrangler secret put ADMIN_PASSCODE           # operator passcode for /app/admin
    ```
    Auth needs no messaging secret — artisans log in with phone + 4-digit PIN
-   (hashed with PBKDF2). The PIN is set during onboarding.
+   (hashed with PBKDF2). The PIN is set during onboarding. The **pilot ops
+   console** lives at `/app/admin` (separate passcode auth, isolated from
+   artisan sessions): pilot metrics, payment reconciliation, artisan roster +
+   pause, and booking/client lookup for support.
 2. **GitHub Actions secret**: repo → Settings → Secrets → Actions →
    `CLOUDFLARE_API_TOKEN` (token with Workers Scripts:Edit, D1:Edit, Workers KV:Edit,
    Workers R2:Edit, Queues:Edit on the ghwmelite account). CI then tests +

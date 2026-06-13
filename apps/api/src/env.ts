@@ -15,6 +15,7 @@ export interface Bindings {
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_WEBHOOK_SECRET?: string;
   SESSION_SIGNING_KEY?: string;
+  ADMIN_PASSCODE?: string;
 }
 
 /** A queued outbound Telegram message — text is fully rendered at enqueue time. */

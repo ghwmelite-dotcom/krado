@@ -12,6 +12,7 @@ declare module "cloudflare:test" {
     TELEGRAM_BOT_USERNAME: string;
     TELEGRAM_BOT_TOKEN?: string;
     TELEGRAM_WEBHOOK_SECRET?: string;
+    ADMIN_PASSCODE: string;
     MESSAGES: Queue;
   }
 }

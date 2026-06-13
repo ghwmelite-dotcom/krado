@@ -98,6 +98,52 @@ export interface OnboardResult {
   telegram_link: string;
 }
 
+export interface AdminOverview {
+  artisans_total: number;
+  artisans_active_week: number;
+  bookings_total: number;
+  by_status: Record<string, number>;
+  no_show_rate: number;
+  bookings_via_nudge: number;
+  bookings_via_link: number;
+  bookings_via_manual: number;
+  gmv_completed: number;
+  krado_fees_accrued: number;
+  pending_recon: number;
+  pending_claims: number;
+}
+
+export interface AdminArtisan {
+  id: string;
+  handle: string;
+  shop_name: string;
+  area: string;
+  phone: string;
+  status: string;
+  created_at: string;
+  telegram_linked: number;
+  week_bookings: number;
+  week_gmv: number;
+  last_booking: string | null;
+}
+
+export interface ReconRow {
+  id: string;
+  reference: string;
+  amount: number;
+  phone: string | null;
+  artisan_id: string | null;
+  reason: string;
+  created_at: string;
+}
+
+export interface LookupResult {
+  artisans: Array<{ id: string; handle: string; shop_name: string; phone: string; status: string }>;
+  clients: Array<{ id: string; phone: string; name: string | null }>;
+  payments: Array<{ id: string; reference: string; kind: string; amount: number; status: string; booking_id: string }>;
+  bookings: Array<{ id: string; service_name: string; price: number; deposit: number; starts_at: string; status: string; artisan_id: string }>;
+}
+
 export interface OnboardPayload {
   name: string;
   shop_name: string;

@@ -1,17 +1,22 @@
 import type { ArtisanPatch } from "@krado/shared";
 import type { z } from "zod";
 import type {
+  AdminArtisan,
+  AdminOverview,
   Artisan,
   BookingRow,
   DashboardPayload,
+  LookupResult,
   ManualClaim,
   NudgeRow,
   OnboardPayload,
   OnboardResult,
+  ReconRow,
   Service,
 } from "./types";
 
 const TOKEN_KEY = "krado_token";
+const ADMIN_TOKEN_KEY = "krado_admin_token";
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -23,6 +28,18 @@ export function setToken(token: string): void {
 
 export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
+}
+
+export function getAdminToken(): string | null {
+  return localStorage.getItem(ADMIN_TOKEN_KEY);
+}
+
+export function setAdminToken(token: string): void {
+  localStorage.setItem(ADMIN_TOKEN_KEY, token);
+}
+
+export function clearAdminToken(): void {
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
 }
 
 export class ApiError extends Error {
@@ -141,4 +158,32 @@ export const api = {
 
   rejectClaim: (id: string) =>
     request<{ ok: true }>(`/api/manual-claims/${id}/reject`, { method: "POST" }),
+};
+
+/** Admin requests carry the separate operator token, never the artisan one. */
+async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  headers.set("accept", "application/json");
+  if (typeof init.body === "string") headers.set("content-type", "application/json");
+  const token = getAdminToken();
+  if (token) headers.set("authorization", `Bearer ${token}`);
+  const res = await fetch(path, { ...init, headers });
+  if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => null));
+  return (await res.json()) as T;
+}
+
+export const adminApi = {
+  login: (passcode: string) =>
+    adminRequest<{ token: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ passcode }) }),
+  overview: () => adminRequest<AdminOverview>("/api/admin/overview"),
+  artisans: () => adminRequest<{ artisans: AdminArtisan[] }>("/api/admin/artisans"),
+  setArtisanStatus: (id: string, status: "active" | "paused") =>
+    adminRequest<{ ok: true }>(`/api/admin/artisans/${id}/status`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    }),
+  recon: () => adminRequest<{ recon: ReconRow[] }>("/api/admin/recon"),
+  resolveRecon: (id: string) =>
+    adminRequest<{ ok: true }>(`/api/admin/recon/${id}/resolve`, { method: "POST" }),
+  lookup: (q: string) => adminRequest<LookupResult>(`/api/admin/lookup?q=${encodeURIComponent(q)}`),
 };

@@ -10,6 +10,7 @@ import { Bookings } from "./screens/Bookings";
 import { Money } from "./screens/Money";
 import { Styles } from "./screens/Styles";
 import { Settings } from "./screens/Settings";
+import { Admin } from "./screens/Admin";
 
 const NAV_PATHS: Record<NavKey, string> = {
   home: "/",
@@ -49,6 +50,7 @@ export function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/admin" element={<Admin />} />
         <Route
           element={
             <RequireAuth>

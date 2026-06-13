@@ -782,3 +782,93 @@ h3 {
   font-size: var(--krado-text-label-lg);
   opacity: 0.7;
 }
+
+/* admin / ops console */
+.admin-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--krado-space-2);
+}
+.admin-metric {
+  background: var(--krado-paper);
+  border: 1px solid var(--krado-line);
+  border-radius: var(--krado-radius-md);
+  padding: var(--krado-space-2) var(--krado-space-3);
+  box-shadow: var(--krado-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-metric--warn {
+  background: var(--krado-clay-50);
+  border-color: var(--krado-clay-50);
+}
+.admin-metric__label {
+  font-size: var(--krado-text-floor);
+  opacity: 0.7;
+}
+.admin-metric__value {
+  font-size: 20px;
+  font-weight: var(--krado-weight-medium);
+}
+.admin-flags {
+  font-size: var(--krado-text-label);
+  color: var(--krado-gold-900);
+  background: var(--krado-gold-100);
+  border-radius: var(--krado-radius-md);
+  padding: var(--krado-space-2) var(--krado-space-3);
+  margin: 0;
+}
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--krado-space-2);
+}
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--krado-space-2);
+  background: var(--krado-paper);
+  border: 1px solid var(--krado-line);
+  border-radius: var(--krado-radius-md);
+  padding: var(--krado-space-2) var(--krado-space-3);
+}
+.admin-row__sub {
+  font-size: var(--krado-text-floor);
+  opacity: 0.7;
+  margin-top: 2px;
+}
+.admin-paused {
+  font-size: var(--krado-text-floor);
+  font-weight: var(--krado-weight-medium);
+  color: var(--krado-clay-800);
+  background: var(--krado-clay-50);
+  border-radius: var(--krado-radius-pill);
+  padding: 1px 8px;
+  margin-left: 8px;
+}
+.admin-search {
+  display: flex;
+  gap: var(--krado-space-2);
+}
+.admin-search input {
+  flex: 1;
+  min-height: var(--krado-touch-target);
+  padding: 0 var(--krado-space-2);
+  border: 1px solid #cfccc2;
+  border-radius: var(--krado-radius-md);
+  font-family: var(--krado-font-ui);
+  font-size: var(--krado-text-body);
+}
+.admin-search input:focus-visible {
+  outline: none;
+  border-color: var(--krado-forest-600);
+  box-shadow: 0 0 0 3px var(--krado-forest-50);
+}
+.admin-lookup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--krado-space-2);
+}
