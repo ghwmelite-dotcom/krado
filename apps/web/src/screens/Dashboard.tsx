@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import type { Lang } from "@krado/shared";
 import {
   accraMinutesOf,
   formatGHS,
@@ -12,6 +13,34 @@ import { SettingsIcon } from "../components/SettingsIcon";
 import { api } from "../api";
 import { useLang } from "../lang";
 import type { DashboardPayload } from "../types";
+
+/** Empty chairs are an action, not a dead end: surface the booking link. */
+function ShareLinkCard({ lang, handle }: { lang: Lang; handle: string }) {
+  const [copied, setCopied] = useState(false);
+  const link = `${window.location.origin}/${handle}`;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable (http, old WebView) — the link is still visible to long-press.
+    }
+  }
+
+  return (
+    <div className="share-cta">
+      <p className="share-cta__note">{t(lang, "no_bookings_today")}</p>
+      <div className="share-cta__row">
+        <span className="share-cta__link">{link.replace(/^https?:\/\//, "")}</span>
+        <button type="button" className="krado-btn krado-btn--forest" onClick={() => void copy()}>
+          {copied ? t(lang, "copied") : t(lang, "copy_link")}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function Dashboard() {
   const { lang, setLang } = useLang();
@@ -107,7 +136,7 @@ export function Dashboard() {
       <section>
         <h2 className="section-title">{t(lang, "up_next")}</h2>
         {data.up_next.length === 0 ? (
-          <p className="empty-note">{t(lang, "no_bookings_today")}</p>
+          <ShareLinkCard lang={lang} handle={data.artisan.handle} />
         ) : (
           <ul className="krado-timeline">
             {data.up_next.map((booking, i) => (
