@@ -4,6 +4,7 @@ import type { AppEnv, Bindings } from "../env";
 import { verifySignature, verifyTransaction } from "../lib/paystack";
 import { getHoldByToken, type HoldRecord } from "../lib/holds";
 import { lockBooking } from "../lib/locking";
+import { markPayoutPaid, markPayoutFailed } from "../lib/settlement";
 
 export const paystackWebhook = new Hono<AppEnv>();
 
@@ -27,7 +28,8 @@ paystackWebhook.post("/", async (c) => {
   if (!ok) return c.json({ error: "invalid_signature" }, 401);
 
   const event = JSON.parse(rawBody) as PaystackEvent;
-  if (event.event !== "charge.success") return c.json({ ok: true, ignored: event.event });
+  const handled = ["charge.success", "transfer.success", "transfer.failed", "transfer.reversed"];
+  if (!handled.includes(event.event)) return c.json({ ok: true, ignored: event.event });
 
   // Idempotency gate: (provider, event_id) PK — a conflict means we already
   // processed this delivery, so acknowledge and stop.
@@ -38,6 +40,18 @@ paystackWebhook.post("/", async (c) => {
       .run();
   } catch {
     return c.json({ ok: true, duplicate: true });
+  }
+
+  // Outbound payout (transfer) status — settle or release the payout.
+  if (event.event.startsWith("transfer.")) {
+    const payout = await c.env.DB.prepare("SELECT id FROM payouts WHERE reference = ?")
+      .bind(event.data.reference)
+      .first<{ id: string }>();
+    if (payout) {
+      if (event.event === "transfer.success") await markPayoutPaid(c.env, payout.id);
+      else await markPayoutFailed(c.env, payout.id, event.event);
+    }
+    return c.json({ ok: true });
   }
 
   // Never trust the webhook payload's amount — re-verify against the API.

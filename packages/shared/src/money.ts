@@ -42,3 +42,22 @@ export function splitDeposit(
   const fee = Math.min(Math.max(feePesewas, 0), depositPesewas);
   return { krado_fee: fee, artisan_net: depositPesewas - fee };
 }
+
+export type SettlementReason = "completed" | "no_show";
+
+/**
+ * What Krado owes the artisan from a deposit it collected:
+ * - completed → deposit minus the Krado fee (Krado keeps the fee)
+ * - no_show   → the full deposit; the fee is waived ("no charge on no-shows")
+ */
+export function settlementNet(
+  depositPesewas: number,
+  feePesewas: number,
+  reason: SettlementReason,
+): { gross: number; fee: number; net: number } {
+  if (!Number.isInteger(depositPesewas) || !Number.isInteger(feePesewas)) {
+    throw new Error("settlementNet expects integer pesewas");
+  }
+  const fee = reason === "completed" ? Math.min(Math.max(feePesewas, 0), depositPesewas) : 0;
+  return { gross: depositPesewas, fee, net: depositPesewas - fee };
+}

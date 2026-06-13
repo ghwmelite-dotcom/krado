@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { formatGHS } from "@krado/shared";
 import { KenteStrip } from "@krado/ui";
 import { adminApi, getAdminToken, setAdminToken, clearAdminToken, ApiError } from "../api";
-import type { AdminArtisan, AdminOverview, LookupResult, ReconRow } from "../types";
+import type { AdminArtisan, AdminOverview, LookupResult, PayoutsView, ReconRow } from "../types";
 
 /** Pilot ops console — operator-only, separate passcode auth. */
 export function Admin() {
@@ -61,14 +61,22 @@ function AdminConsole({ onOut }: { onOut: () => void }) {
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [artisans, setArtisans] = useState<AdminArtisan[]>([]);
   const [recon, setRecon] = useState<ReconRow[]>([]);
+  const [payouts, setPayouts] = useState<PayoutsView | null>(null);
+  const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const [o, a, r] = await Promise.all([adminApi.overview(), adminApi.artisans(), adminApi.recon()]);
+      const [o, a, r, p] = await Promise.all([
+        adminApi.overview(),
+        adminApi.artisans(),
+        adminApi.recon(),
+        adminApi.payouts(),
+      ]);
       setOverview(o);
       setArtisans(a.artisans);
       setRecon(r.recon);
+      setPayouts(p);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         clearAdminToken();
@@ -91,6 +99,18 @@ function AdminConsole({ onOut }: { onOut: () => void }) {
 
   async function resolve(id: string) {
     await adminApi.resolveRecon(id).catch(() => {});
+    void load();
+  }
+
+  async function runPayouts() {
+    setRunning(true);
+    await adminApi.runPayouts().catch(() => {});
+    setRunning(false);
+    void load();
+  }
+
+  async function markPaid(id: string) {
+    await adminApi.markPayoutPaid(id).catch(() => {});
     void load();
   }
 
@@ -157,6 +177,53 @@ function AdminConsole({ onOut }: { onOut: () => void }) {
         </section>
 
         <section>
+          <div className="admin-section-head">
+            <h2 className="section-title">Payouts</h2>
+            <button type="button" className="krado-btn krado-btn--forest" disabled={running} onClick={() => void runPayouts()}>
+              {running ? "Running…" : "Run payouts"}
+            </button>
+          </div>
+          {payouts && payouts.balances.length > 0 && (
+            <div className="admin-list">
+              {payouts.balances.map((b) => (
+                <div key={b.artisan_id} className="admin-row">
+                  <div>
+                    <strong>{b.shop_name}</strong>
+                    <div className="admin-row__sub">owed, not yet paid out</div>
+                  </div>
+                  <strong className="num">{formatGHS(b.balance)}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+          {payouts && payouts.payouts.length > 0 && (
+            <div className="admin-list" style={{ marginTop: "var(--krado-space-2)" }}>
+              {payouts.payouts.map((p) => (
+                <div key={p.id} className="admin-row">
+                  <div>
+                    <strong className="num">{formatGHS(p.amount)}</strong> → {p.shop_name}
+                    <div className="admin-row__sub num">
+                      {p.momo_number} · {p.status}
+                      {p.status === "failed" ? " ⚠" : ""}
+                    </div>
+                  </div>
+                  {p.status === "pending" ? (
+                    <button type="button" className="krado-btn krado-btn--outline" onClick={() => void markPaid(p.id)}>
+                      Mark paid
+                    </button>
+                  ) : (
+                    <span className={`admin-badge admin-badge--${p.status}`}>{p.status}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {payouts && payouts.balances.length === 0 && payouts.payouts.length === 0 && (
+            <p className="empty-note">No balances owed.</p>
+          )}
+        </section>
+
+        <section>
           <h2 className="section-title">Artisans</h2>
           <div className="admin-list">
             {artisans.map((a) => (
@@ -166,6 +233,7 @@ function AdminConsole({ onOut }: { onOut: () => void }) {
                   {a.status === "paused" && <span className="admin-paused">paused</span>}
                   <div className="admin-row__sub num">
                     /{a.handle} · {a.area} · {a.week_bookings} this wk · {formatGHS(a.week_gmv)}
+                    {a.balance > 0 ? ` · owed ${formatGHS(a.balance)}` : ""}
                     {a.telegram_linked ? " · TG" : ""}
                   </div>
                 </div>

@@ -11,6 +11,7 @@ import type {
   NudgeRow,
   OnboardPayload,
   OnboardResult,
+  PayoutsView,
   ReconRow,
   Service,
 } from "./types";
@@ -186,4 +187,8 @@ export const adminApi = {
   resolveRecon: (id: string) =>
     adminRequest<{ ok: true }>(`/api/admin/recon/${id}/resolve`, { method: "POST" }),
   lookup: (q: string) => adminRequest<LookupResult>(`/api/admin/lookup?q=${encodeURIComponent(q)}`),
+  payouts: () => adminRequest<PayoutsView>("/api/admin/payouts"),
+  runPayouts: () => adminRequest<{ ok: true; payouts: number; total: number }>("/api/admin/payouts/run", { method: "POST" }),
+  markPayoutPaid: (id: string) =>
+    adminRequest<{ ok: true }>(`/api/admin/payouts/${id}/paid`, { method: "POST" }),
 };

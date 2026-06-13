@@ -16,6 +16,8 @@ export interface Bindings {
   TELEGRAM_WEBHOOK_SECRET?: string;
   SESSION_SIGNING_KEY?: string;
   ADMIN_PASSCODE?: string;
+  /** "true" enables live Paystack MoMo transfers; otherwise payouts settle manually. */
+  PAYSTACK_TRANSFERS_ENABLED?: string;
 }
 
 /** A queued outbound Telegram message — text is fully rendered at enqueue time. */

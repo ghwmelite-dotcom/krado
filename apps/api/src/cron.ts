@@ -15,6 +15,12 @@ export async function runCron(cron: string, env: Bindings): Promise<void> {
       const { susuSweep } = await import("./jobs/susu");
       return susuSweep(env);
     }
+    case "0 22 * * *": {
+      // Nightly settlement: accrue what's owed and pay out artisan balances.
+      const { runPayouts } = await import("./lib/settlement");
+      await runPayouts(env);
+      return;
+    }
     default:
       console.warn("unknown cron", cron);
   }

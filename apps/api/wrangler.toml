@@ -49,7 +49,7 @@ queue = "krado-messages"
 max_retries = 5
 
 [triggers]
-crons = ["*/5 * * * *", "0 20 * * *", "0 21 * * *"]
+crons = ["*/5 * * * *", "0 20 * * *", "0 21 * * *", "0 22 * * *"]
 
 [observability]
 enabled = true

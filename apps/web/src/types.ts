@@ -124,7 +124,24 @@ export interface AdminArtisan {
   telegram_linked: number;
   week_bookings: number;
   week_gmv: number;
+  balance: number;
   last_booking: string | null;
+}
+
+export interface PayoutRow {
+  id: string;
+  amount: number;
+  status: string;
+  momo_number: string;
+  reference: string;
+  created_at: string;
+  settled_at: string | null;
+  shop_name: string;
+}
+
+export interface PayoutsView {
+  payouts: PayoutRow[];
+  balances: Array<{ shop_name: string; artisan_id: string; balance: number }>;
 }
 
 export interface ReconRow {

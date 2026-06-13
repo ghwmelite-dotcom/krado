@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import type { AppEnv } from "../env";
 import { adminKey, ADMIN_TTL_SECONDS, requireAdmin } from "../middleware/admin";
+import { runPayouts, markPayoutPaid } from "../lib/settlement";
 
 /**
  * Pilot ops console (operator-only, separate auth). Read-mostly: watch the
@@ -101,6 +102,7 @@ admin.get("/artisans", async (c) => {
             (a.telegram_chat_id IS NOT NULL) AS telegram_linked,
             (SELECT COUNT(*) FROM bookings b WHERE b.artisan_id = a.id AND b.starts_at >= ?1 AND b.status IN ('locked','completed')) AS week_bookings,
             (SELECT COALESCE(SUM(price),0) FROM bookings b WHERE b.artisan_id = a.id AND b.status = 'completed' AND b.starts_at >= ?1) AS week_gmv,
+            (SELECT COALESCE(SUM(net),0) FROM settlement_entries s WHERE s.artisan_id = a.id AND s.payout_id IS NULL) AS balance,
             (SELECT MAX(created_at) FROM bookings b WHERE b.artisan_id = a.id) AS last_booking
      FROM artisans a
      ORDER BY week_bookings DESC, a.created_at DESC`,
@@ -136,6 +138,35 @@ admin.post("/recon/:id/resolve", async (c) => {
     .run();
   if (res.meta.changes === 0) return c.json({ error: "not_found" }, 404);
   return c.json({ ok: true });
+});
+
+/** Payouts: recent batches + each artisan's outstanding balance. */
+admin.get("/payouts", async (c) => {
+  const [payouts, balances] = await Promise.all([
+    c.env.DB.prepare(
+      `SELECT p.id, p.amount, p.status, p.momo_number, p.reference, p.created_at, p.settled_at, a.shop_name
+       FROM payouts p JOIN artisans a ON a.id = p.artisan_id
+       ORDER BY p.created_at DESC LIMIT 50`,
+    ).all(),
+    c.env.DB.prepare(
+      `SELECT a.shop_name, a.id AS artisan_id, SUM(s.net) AS balance
+       FROM settlement_entries s JOIN artisans a ON a.id = s.artisan_id
+       WHERE s.payout_id IS NULL
+       GROUP BY s.artisan_id HAVING balance > 0
+       ORDER BY balance DESC`,
+    ).all(),
+  ]);
+  return c.json({ payouts: payouts.results, balances: balances.results });
+});
+
+admin.post("/payouts/run", async (c) => {
+  const result = await runPayouts(c.env);
+  return c.json({ ok: true, ...result });
+});
+
+admin.post("/payouts/:id/paid", async (c) => {
+  const ok = await markPayoutPaid(c.env, c.req.param("id"));
+  return ok ? c.json({ ok: true }) : c.json({ error: "not_found_or_paid" }, 404);
 });
 
 /** Support lookup by phone, handle, or Paystack/manual reference. */

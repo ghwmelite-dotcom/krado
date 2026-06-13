@@ -185,4 +185,39 @@ describe("POST /api/webhooks/paystack", () => {
     const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM bookings").first<{ n: number }>();
     expect(n!.n).toBe(0);
   });
+
+  test("transfer.success marks the matching payout paid", async () => {
+    await env.DB.prepare(
+      "INSERT INTO payouts (id, artisan_id, amount, momo_number, reference, status) VALUES ('po_t1','art_p',4800,'+233244000222','KPO-T1','pending')",
+    ).run();
+    const body = JSON.stringify({ event: "transfer.success", data: { reference: "KPO-T1", amount: 4800 } });
+    const res = await postWebhook(body);
+    expect(res.status).toBe(200);
+    const payout = await env.DB.prepare("SELECT status FROM payouts WHERE id = 'po_t1'").first();
+    expect(payout).toMatchObject({ status: "paid" });
+  });
+
+  test("transfer.failed releases the payout's entries for retry", async () => {
+    await env.DB.prepare(
+      "INSERT INTO payouts (id, artisan_id, amount, momo_number, reference, status) VALUES ('po_t2','art_p',900,'+233244000222','KPO-T2','pending')",
+    ).run();
+    await env.DB.prepare("INSERT OR IGNORE INTO clients (id, phone) VALUES ('cl_t2','+233240000077')").run();
+    await env.DB.prepare(
+      `INSERT INTO bookings (id, artisan_id, client_id, service_id, service_name, price, duration_min, deposit, starts_at, status)
+       VALUES ('bk_t2','art_p','cl_t2','svc_p','Knotless braids',20000,120,1000,'2026-01-01T10:00:00.000Z','completed')`,
+    ).run();
+    await env.DB.prepare(
+      "INSERT INTO settlement_entries (id, artisan_id, booking_id, gross, fee, net, reason, payout_id) VALUES ('set_t2','art_p','bk_t2',1000,100,900,'completed','po_t2')",
+    ).run();
+
+    const body = JSON.stringify({ event: "transfer.failed", data: { reference: "KPO-T2", amount: 900 } });
+    expect((await postWebhook(body)).status).toBe(200);
+
+    const payout = await env.DB.prepare("SELECT status FROM payouts WHERE id = 'po_t2'").first();
+    expect(payout).toMatchObject({ status: "failed" });
+    const entry = await env.DB.prepare("SELECT payout_id FROM settlement_entries WHERE id = 'set_t2'").first<{
+      payout_id: string | null;
+    }>();
+    expect(entry?.payout_id).toBeNull(); // released for the next run
+  });
 });

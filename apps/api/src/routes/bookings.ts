@@ -13,6 +13,7 @@ import type { AppEnv, Bindings } from "../env";
 import { requireSession } from "../middleware/session";
 import { refundTransaction, hmacSha512Hex } from "../lib/paystack";
 import { notify } from "../lib/messaging";
+import { accruePending } from "../lib/settlement";
 
 export const bookings = new Hono<AppEnv>();
 
@@ -103,6 +104,12 @@ async function applyTransition(env: Bindings, booking: BookingRow, target: Booki
 
   if (target === "completed") {
     await tallySusu(env, booking);
+  }
+
+  // Accrue what Krado owes the artisan (no-op for manual-paid bookings and
+  // idempotent per booking) so the balance reflects this booking immediately.
+  if (target === "completed" || target === "no_show") {
+    await accruePending(env);
   }
 
   if (target === "cancelled_by_artisan") {
