@@ -14,31 +14,66 @@ import { api } from "../api";
 import { useLang } from "../lang";
 import type { DashboardPayload } from "../types";
 
-/** Empty chairs are an action, not a dead end: surface the booking link. */
-function ShareLinkCard({ lang, handle }: { lang: Lang; handle: string }) {
+/**
+ * Sharing the booking link is the #1 growth action, so it lives on the
+ * dashboard permanently — not just in the empty state. Native share sheet
+ * (WhatsApp/IG) where available, with a copy fallback.
+ */
+function ShareShopCard({ lang, handle, shopName }: { lang: Lang; handle: string; shopName: string }) {
   const [copied, setCopied] = useState(false);
   const link = `${window.location.origin}/${handle}`;
+  const message = t(lang, "onboard_share_message", { shop: shopName, link });
 
   async function copy() {
     try {
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard.writeText(message);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard unavailable (http, old WebView) — the link is still visible to long-press.
+      // Clipboard unavailable (http, old WebView) — the link stays visible to long-press.
     }
   }
 
+  async function share() {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: shopName, text: message, url: link });
+        return;
+      } catch {
+        // user dismissed, or share unsupported — fall through to copy
+      }
+    }
+    await copy();
+  }
+
   return (
-    <div className="share-cta">
-      <p className="share-cta__note">{t(lang, "no_bookings_today")}</p>
-      <div className="share-cta__row">
-        <span className="share-cta__link">{link.replace(/^https?:\/\//, "")}</span>
-        <button type="button" className="krado-btn krado-btn--gold" onClick={() => void copy()}>
+    <section className="share-card">
+      <div className="share-card__head">
+        <ShareIcon />
+        <h2>{t(lang, "share_title")}</h2>
+      </div>
+      <p className="share-card__guide">{t(lang, "share_guide")}</p>
+      <span className="share-card__link">{link.replace(/^https?:\/\//, "")}</span>
+      <div className="share-card__actions">
+        <button type="button" className="krado-btn krado-btn--gold" onClick={() => void share()}>
+          {t(lang, "share_button")}
+        </button>
+        <button type="button" className="krado-btn krado-btn--outline" onClick={() => void copy()}>
           {copied ? t(lang, "copied") : t(lang, "copy_link")}
         </button>
       </div>
-    </div>
+    </section>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+    </svg>
   );
 }
 
@@ -127,6 +162,8 @@ export function Dashboard() {
 
       <SusuTile label={t(lang, "susu_week")} amountPesewas={data.susu_week} />
 
+      <ShareShopCard lang={lang} handle={data.artisan.handle} shopName={data.artisan.shop_name} />
+
       {data.pending_manual_claims > 0 && (
         <Link to="/bookings" className="banner banner--claims">
           {t(lang, "claims_pending", { count: data.pending_manual_claims })}
@@ -146,7 +183,7 @@ export function Dashboard() {
       <section>
         <h2 className="section-title">{t(lang, "up_next")}</h2>
         {data.up_next.length === 0 ? (
-          <ShareLinkCard lang={lang} handle={data.artisan.handle} />
+          <p className="empty-note">{t(lang, "no_bookings_today")}</p>
         ) : (
           <ul className="krado-timeline">
             {data.up_next.map((booking, i) => (

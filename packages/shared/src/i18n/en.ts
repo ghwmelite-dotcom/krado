@@ -88,6 +88,11 @@ export const en = {
   settings: "Settings",
   language_label: "Language",
 
+  // share your shop (persistent on the dashboard)
+  share_title: "Share your shop",
+  share_guide: "Paste this link in your WhatsApp status and IG bio. Clients pick a style and lock their slot with a small deposit.",
+  share_button: "Share link",
+
   // auth (artisan PWA)
   login_phone_label: "Phone number",
   login_pin_label: "4-digit PIN",

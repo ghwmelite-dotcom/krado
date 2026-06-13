@@ -251,8 +251,8 @@ h3 {
   margin: 0;
 }
 
-/* share-your-link empty-state card */
-.share-cta {
+/* persistent "share your shop" card — the #1 growth action */
+.share-card {
   display: flex;
   flex-direction: column;
   gap: var(--krado-space-2);
@@ -261,29 +261,53 @@ h3 {
   border-radius: var(--krado-radius-lg);
   padding: var(--krado-space-3);
   box-shadow: var(--krado-shadow-sm);
+  position: relative;
+  overflow: hidden;
 }
-
-.share-cta__note {
+.share-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--krado-gold-200);
+}
+.share-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--krado-gold-800);
+}
+.share-card__head h2 {
   font-size: var(--krado-text-label-lg);
-  opacity: 0.8;
+  font-weight: var(--krado-weight-medium);
+  color: var(--krado-ink);
+}
+.share-card__guide {
+  font-size: var(--krado-text-label);
+  color: var(--krado-ink);
+  opacity: 0.75;
   margin: 0;
 }
-
-.share-cta__row {
-  display: flex;
-  gap: var(--krado-space-2);
-  align-items: center;
-}
-
-.share-cta__link {
-  flex: 1;
-  min-width: 0;
+.share-card__link {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: var(--krado-weight-medium);
   color: var(--krado-forest-600);
   font-size: var(--krado-text-label-lg);
+  background: var(--krado-mist);
+  border-radius: var(--krado-radius-md);
+  padding: 10px 12px;
+}
+.share-card__actions {
+  display: flex;
+  gap: var(--krado-space-2);
+}
+.share-card__actions > * {
+  flex: 1;
 }
 
 /* banners */
