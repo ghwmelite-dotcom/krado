@@ -53,6 +53,8 @@ export async function createHold(
   await env.KV.put(key, JSON.stringify(hold), { expirationTtl: HOLD_TTL_S });
   await env.KV.put(holdTokenKey(hold.token), key, { expirationTtl: HOLD_TTL_S });
   await env.KV.put(countKey(data.phone), String(count + 1), { expirationTtl: HOLD_TTL_S });
+  const { bumpCounter } = await import("./metrics");
+  await bumpCounter(env, "holds_created"); // funnel denominator
   return { ok: true, hold };
 }
 

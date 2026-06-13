@@ -46,7 +46,7 @@ admin.use("/*", requireAdmin);
 admin.get("/overview", async (c) => {
   const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
 
-  const [artisans, active, statuses, money, sources, recon, claims, fees] = await Promise.all([
+  const [artisans, active, statuses, money, sources, recon, claims, fees, funnel] = await Promise.all([
     c.env.DB.prepare("SELECT COUNT(*) AS n FROM artisans").first<{ n: number }>(),
     c.env.DB.prepare(
       "SELECT COUNT(DISTINCT artisan_id) AS n FROM bookings WHERE starts_at >= ? AND status IN ('locked','completed')",
@@ -69,6 +69,10 @@ admin.get("/overview", async (c) => {
     c.env.DB.prepare(
       "SELECT COALESCE(SUM(krado_fee),0) AS f FROM bookings WHERE status IN ('locked','completed')",
     ).first<{ f: number }>(),
+    c.env.DB.prepare("SELECT name, SUM(count) AS n FROM metric_counters GROUP BY name").all<{
+      name: string;
+      n: number;
+    }>(),
   ]);
 
   const byStatus: Record<string, number> = {};
@@ -79,7 +83,15 @@ admin.get("/overview", async (c) => {
   for (const r of sources.results) bySource[r.source] = r.n;
   const totalBookings = Object.values(byStatus).reduce((a, b) => a + b, 0);
 
+  const counters: Record<string, number> = {};
+  for (const r of funnel.results) counters[r.name] = r.n;
+  const holdsCreated = counters.holds_created ?? 0;
+  const holdsLocked = counters.holds_locked ?? 0;
+
   return c.json({
+    holds_created: holdsCreated,
+    holds_locked: holdsLocked,
+    hold_conversion: holdsCreated > 0 ? Math.round((holdsLocked / holdsCreated) * 100) : null,
     artisans_total: artisans?.n ?? 0,
     artisans_active_week: active?.n ?? 0,
     bookings_total: totalBookings,

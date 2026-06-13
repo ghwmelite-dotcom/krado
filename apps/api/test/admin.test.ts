@@ -19,6 +19,8 @@ async function seed() {
   await env.DB.prepare(
     "INSERT INTO payment_recon (id, reference, amount, phone, artisan_id, reason) VALUES ('rec_1','ref_x',5000,'+233240000099','art_ad1','hold_expired')",
   ).run();
+  // Funnel counters: 10 holds, 8 locked → 80% conversion.
+  await env.DB.prepare("INSERT OR REPLACE INTO metric_counters (day, name, count) VALUES ('2026-06-01','holds_created',10),('2026-06-01','holds_locked',8)").run();
 }
 
 async function adminToken(passcode = "test_admin_pass"): Promise<string> {
@@ -63,6 +65,7 @@ describe("admin ops", () => {
     expect(o.bookings_via_nudge).toBe(1);
     expect(o.krado_fees_accrued).toBe(100); // only the completed booking; no charge on no-shows
     expect(o.pending_recon).toBe(1);
+    expect(o.hold_conversion).toBe(80); // 8 of 10 holds locked
   });
 
   test("artisan roster includes week activity and can be paused", async () => {

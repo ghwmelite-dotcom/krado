@@ -99,6 +99,9 @@ export interface OnboardResult {
 }
 
 export interface AdminOverview {
+  holds_created: number;
+  holds_locked: number;
+  hold_conversion: number | null;
   artisans_total: number;
   artisans_active_week: number;
   bookings_total: number;

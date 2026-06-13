@@ -70,6 +70,8 @@ export async function lockBooking(env: Bindings, hold: HoldRecord, payment: Paym
   ]);
 
   await deleteHold(env, hold);
+  const { bumpCounter } = await import("./metrics");
+  await bumpCounter(env, "holds_locked"); // funnel numerator
 
   const artisan = await env.DB.prepare(
     "SELECT shop_name, language, telegram_chat_id FROM artisans WHERE id = ?",

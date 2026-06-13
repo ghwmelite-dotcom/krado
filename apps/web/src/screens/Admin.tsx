@@ -139,8 +139,12 @@ function AdminConsole({ onOut }: { onOut: () => void }) {
               <Metric label="No-show rate" value={`${overview.no_show_rate}%`} tone={overview.no_show_rate > 10 ? "warn" : "ok"} />
               <Metric label="GMV (completed)" value={formatGHS(overview.gmv_completed)} />
               <Metric label="Krado fees" value={formatGHS(overview.krado_fees_accrued)} />
+              <Metric
+                label="Hold → lock"
+                value={overview.hold_conversion === null ? "—" : `${overview.hold_conversion}%`}
+                tone={overview.hold_conversion !== null && overview.hold_conversion < 90 ? "warn" : "ok"}
+              />
               <Metric label="Via nudges" value={String(overview.bookings_via_nudge)} />
-              <Metric label="Bookings" value={String(overview.bookings_total)} />
             </div>
             {(overview.pending_recon > 0 || overview.pending_claims > 0) && (
               <p className="admin-flags">

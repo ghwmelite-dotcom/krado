@@ -57,6 +57,12 @@ describe("public booking: availability + holds", () => {
 
     const { slots } = (await (await getSlots()).json()) as { slots: number[] };
     expect(slots).not.toContain(600);
+
+    // funnel: the hold bumped holds_created
+    const c = await env.DB.prepare("SELECT COALESCE(SUM(count),0) AS n FROM metric_counters WHERE name = 'holds_created'").first<{
+      n: number;
+    }>();
+    expect(c!.n).toBeGreaterThanOrEqual(1);
   });
 
   test("double-hold of the same slot is rejected 409", async () => {
