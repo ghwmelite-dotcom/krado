@@ -1,0 +1,480 @@
+/* Krado component styles — packages/ui. Plain CSS on top of tokens.css. */
+
+/* ---------- KenteStrip ---------- */
+.krado-kente {
+  display: flex;
+  width: 100%;
+}
+.krado-kente__block {
+  display: block;
+}
+
+/* ---------- GoalBar ---------- */
+.krado-goalbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--krado-space-2);
+}
+.krado-goalbar__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.krado-goalbar__label {
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+  color: var(--krado-ink);
+}
+.krado-goalbar__pct {
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+  color: var(--krado-forest-600);
+  font-variant-numeric: tabular-nums;
+}
+.krado-goalbar__track {
+  height: 6px;
+  border-radius: var(--krado-radius-pill);
+  background: var(--krado-forest-100);
+  overflow: hidden;
+}
+.krado-goalbar__fill {
+  height: 100%;
+  border-radius: var(--krado-radius-pill);
+  background: var(--krado-forest-900);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .krado-goalbar__fill {
+    transition: width 300ms ease-out;
+  }
+}
+.krado-goalbar__amounts {
+  font-size: var(--krado-text-label);
+  color: var(--krado-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- StatusChip ---------- */
+.krado-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--krado-radius-pill);
+  font-size: var(--krado-text-floor);
+  font-weight: var(--krado-weight-medium);
+  line-height: 1.4;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.krado-chip--locked {
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+}
+.krado-chip--held {
+  background: var(--krado-gold-100);
+  color: var(--krado-gold-900);
+}
+.krado-chip--no_show {
+  background: var(--krado-clay-50);
+  color: var(--krado-clay-800);
+}
+.krado-chip--completed,
+.krado-chip--cancelled {
+  background: var(--krado-mist);
+  color: var(--krado-ink);
+}
+
+/* ---------- TimelineItem ---------- */
+.krado-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.krado-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--krado-space-2);
+  padding: var(--krado-space-2) 0;
+}
+.krado-timeline-item__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  width: 12px;
+  padding-top: 14px;
+}
+.krado-timeline-item__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+.krado-timeline-item__dot--locked {
+  background: var(--krado-forest-900);
+}
+.krado-timeline-item__dot--held {
+  background: var(--krado-paper);
+  border: 2px solid var(--krado-gold-600);
+}
+.krado-timeline-item__dot--neutral {
+  background: var(--krado-paper);
+  border: 2px solid var(--krado-ink);
+  opacity: 0.4;
+}
+.krado-timeline-item__connector {
+  flex: 1;
+  width: 2px;
+  margin-top: 4px;
+  background: var(--krado-forest-100);
+}
+.krado-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+  font-size: var(--krado-text-label);
+  font-weight: var(--krado-weight-medium);
+  flex: none;
+}
+.krado-timeline-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.krado-timeline-item__row1 {
+  display: flex;
+  gap: var(--krado-space-1);
+  align-items: baseline;
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+}
+.krado-timeline-item__row2 {
+  font-size: var(--krado-text-label);
+  color: var(--krado-ink);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+.krado-timeline-item__actions {
+  display: flex;
+  gap: var(--krado-space-2);
+  margin-top: var(--krado-space-2);
+  flex-wrap: wrap;
+}
+
+/* ---------- NudgeCard (violet = intelligence only) ---------- */
+.krado-nudge {
+  background: var(--krado-violet-50);
+  border-radius: var(--krado-radius-md);
+  padding: var(--krado-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--krado-space-3);
+}
+.krado-nudge__insight {
+  margin: 0;
+  font-size: var(--krado-text-label-lg);
+  color: var(--krado-violet-800);
+  font-variant-numeric: tabular-nums;
+}
+.krado-nudge__actions {
+  display: flex;
+  gap: var(--krado-space-2);
+}
+
+/* ---------- shared buttons ---------- */
+.krado-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--krado-space-2);
+  min-height: var(--krado-touch-target);
+  padding: 0 var(--krado-space-3);
+  border-radius: var(--krado-radius-md);
+  border: 1px solid transparent;
+  font-family: var(--krado-font-ui);
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+  cursor: pointer;
+  background: var(--krado-paper);
+  color: var(--krado-ink);
+}
+.krado-btn:focus-visible {
+  outline: 2px solid var(--krado-violet-600);
+  outline-offset: 2px;
+}
+.krado-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.krado-btn--violet {
+  background: var(--krado-violet-600);
+  color: var(--krado-paper);
+}
+.krado-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--krado-violet-800);
+}
+.krado-btn--outline {
+  border-color: var(--krado-ink);
+  background: transparent;
+}
+.krado-btn--forest {
+  background: var(--krado-forest-900);
+  color: var(--krado-forest-100);
+}
+.krado-btn--clay {
+  background: var(--krado-clay-50);
+  color: var(--krado-clay-800);
+}
+
+/* ---------- StyleCard ---------- */
+.krado-stylecard {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--krado-radius-lg);
+  background: var(--krado-paper);
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  font-family: var(--krado-font-ui);
+  color: var(--krado-ink);
+  min-height: var(--krado-touch-target);
+}
+.krado-stylecard:focus-visible {
+  outline: 2px solid var(--krado-violet-600);
+  outline-offset: 2px;
+}
+.krado-stylecard--selected {
+  border-color: var(--krado-forest-600);
+}
+.krado-stylecard__photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--krado-mist);
+  object-fit: cover;
+  display: block;
+}
+.krado-stylecard__placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--krado-mist);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--krado-gold-600);
+}
+.krado-stylecard__body {
+  padding: var(--krado-space-2) var(--krado-space-3) var(--krado-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.krado-stylecard__name {
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+}
+.krado-stylecard__meta {
+  font-size: var(--krado-text-label);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+.krado-stylecard__check {
+  position: absolute;
+  top: var(--krado-space-2);
+  right: var(--krado-space-2);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--krado-forest-600);
+  color: var(--krado-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- SlotPill ---------- */
+.krado-slotpill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--krado-touch-target);
+  min-width: 72px;
+  padding: 0 var(--krado-space-3);
+  border-radius: var(--krado-radius-pill);
+  border: 1px solid var(--krado-ink);
+  background: transparent;
+  color: var(--krado-ink);
+  font-family: var(--krado-font-ui);
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.krado-slotpill:focus-visible {
+  outline: 2px solid var(--krado-violet-600);
+  outline-offset: 2px;
+}
+.krado-slotpill--selected {
+  background: var(--krado-forest-900);
+  border-color: var(--krado-forest-900);
+  color: var(--krado-forest-100);
+}
+.krado-slotpill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- MoMoButton ---------- */
+.krado-momo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--krado-space-2);
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: var(--krado-radius-lg);
+  background: var(--krado-gold-200);
+  color: var(--krado-gold-900);
+  font-family: var(--krado-font-ui);
+  font-size: var(--krado-text-body);
+  font-weight: var(--krado-weight-medium);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.krado-momo:focus-visible {
+  outline: 2px solid var(--krado-gold-900);
+  outline-offset: 2px;
+}
+.krado-momo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Stepper ---------- */
+.krado-stepper {
+  display: flex;
+  gap: var(--krado-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.krado-stepper__step {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--krado-space-2);
+  font-size: var(--krado-text-label);
+}
+.krado-stepper__bullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: var(--krado-text-floor);
+  font-weight: var(--krado-weight-medium);
+  border: 2px solid transparent;
+  flex: none;
+}
+.krado-stepper__step--done .krado-stepper__bullet {
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+}
+.krado-stepper__step--current .krado-stepper__bullet {
+  border-color: var(--krado-forest-600);
+  color: var(--krado-forest-900);
+  background: var(--krado-paper);
+}
+.krado-stepper__step--todo .krado-stepper__bullet {
+  background: var(--krado-mist);
+  color: var(--krado-ink);
+  opacity: 0.6;
+}
+.krado-stepper__step--current .krado-stepper__label {
+  font-weight: var(--krado-weight-medium);
+}
+
+/* ---------- SusuTile / MetricTile ---------- */
+.krado-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--krado-space-1);
+  padding: var(--krado-space-3);
+  border-radius: var(--krado-radius-md);
+  background: var(--krado-paper);
+}
+.krado-tile--susu {
+  background: var(--krado-forest-50);
+}
+.krado-tile__label {
+  font-size: var(--krado-text-label);
+  color: var(--krado-ink);
+  opacity: 0.75;
+}
+.krado-tile--susu .krado-tile__label {
+  color: var(--krado-forest-900);
+  opacity: 1;
+}
+.krado-tile__value {
+  font-size: var(--krado-text-money-hero);
+  font-weight: var(--krado-weight-medium);
+  color: var(--krado-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.krado-tile--susu .krado-tile__value {
+  color: var(--krado-forest-900);
+}
+.krado-tile__sub {
+  font-size: var(--krado-text-floor);
+  opacity: 0.7;
+}
+
+/* ---------- BottomNav ---------- */
+.krado-bottomnav {
+  display: flex;
+  background: var(--krado-paper);
+  border-top: 1px solid var(--krado-mist);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.krado-bottomnav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  min-width: var(--krado-touch-target);
+  border: none;
+  background: transparent;
+  color: var(--krado-ink);
+  opacity: 0.6;
+  font-family: var(--krado-font-ui);
+  cursor: pointer;
+  padding: var(--krado-space-1) 0;
+}
+.krado-bottomnav__item:focus-visible {
+  outline: 2px solid var(--krado-violet-600);
+  outline-offset: -2px;
+}
+.krado-bottomnav__item--active {
+  color: var(--krado-forest-900);
+  opacity: 1;
+}
+.krado-bottomnav__label {
+  font-size: 10px;
+  font-weight: var(--krado-weight-medium);
+}

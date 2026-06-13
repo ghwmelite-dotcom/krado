@@ -57,7 +57,8 @@ export const me = new Hono<AppEnv>();
 me.get("/", requireSession, async (c) => {
   const artisan = await c.env.DB.prepare(
     `SELECT id, handle, name, shop_name, area, phone, momo_number, language,
-            daily_goal, deposit_pct, deposit_floor, susu_mode, susu_value, hours_json, status
+            daily_goal, deposit_pct, deposit_floor, susu_mode, susu_value, hours_json, status,
+            accept_manual, bank_details
      FROM artisans WHERE id = ?`,
   )
     .bind(c.var.artisanId)

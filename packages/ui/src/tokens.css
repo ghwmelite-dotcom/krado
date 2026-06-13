@@ -1,0 +1,85 @@
+/*
+ * Krado design tokens — codified from docs/DESIGN_SYSTEM.md.
+ * Flat, warm, woven. Structured so dark mode can land in v1.1
+ * without renaming anything (semantic aliases sit on top).
+ */
+
+:root {
+  /* color — gold (primary CTA family: MoMo button = gold-200 bg / gold-900 text) */
+  --krado-gold-100: #fac775;
+  --krado-gold-200: #ef9f27;
+  --krado-gold-600: #854f0b;
+  --krado-gold-800: #633806;
+  --krado-gold-900: #412402;
+
+  /* color — forest (money, success, goal bar, locked chips, selected slots) */
+  --krado-forest-50: #e1f5ee;
+  --krado-forest-100: #9fe1cb;
+  --krado-forest-600: #0f6e56;
+  --krado-forest-900: #04342c;
+
+  /* color — clay (warnings-with-warmth, no-show states) */
+  --krado-clay-50: #faece7;
+  --krado-clay-600: #993c1d;
+  --krado-clay-800: #712b13;
+
+  /* color — violet (intelligence ONLY: nudges, insights) */
+  --krado-violet-50: #eeedfe;
+  --krado-violet-600: #534ab7;
+  --krado-violet-800: #3c3489;
+
+  /* color — neutrals */
+  --krado-ink: #2c2c2a;
+  --krado-paper: #ffffff;
+  --krado-mist: #f1efe8;
+
+  /* kente strip blocks (never gradiented, never animated) */
+  --krado-kente-gold: #ba7517;
+  --krado-kente-black: #2c2c2a;
+  --krado-kente-green: #3b6d11;
+  --krado-kente-red: #a32d2d;
+
+  /* spacing — base-8 grid (4 is the half step) */
+  --krado-space-1: 4px;
+  --krado-space-2: 8px;
+  --krado-space-3: 16px;
+  --krado-space-4: 24px;
+  --krado-space-5: 32px;
+  --krado-space-6: 40px;
+  --krado-space-7: 48px;
+  --krado-space-8: 64px;
+
+  /* radii */
+  --krado-radius-sm: 8px;
+  --krado-radius-md: 12px;
+  --krado-radius-lg: 16px;
+  --krado-radius-pill: 999px;
+
+  /* type — DM Sans 400/500 only; Fraunces for display */
+  --krado-font-ui: "DM Sans", system-ui, -apple-system, sans-serif;
+  --krado-font-display: "Fraunces", Georgia, serif;
+  --krado-text-body: 16px;
+  --krado-text-label: 12px;
+  --krado-text-label-lg: 13px;
+  --krado-text-money-hero: 26px;
+  --krado-text-floor: 11px;
+  --krado-weight-regular: 400;
+  --krado-weight-medium: 500;
+
+  /* interaction */
+  --krado-touch-target: 44px;
+}
+
+html {
+  font-family: var(--krado-font-ui);
+  font-size: var(--krado-text-body);
+  font-weight: var(--krado-weight-regular);
+  color: var(--krado-ink);
+  background: var(--krado-mist);
+}
+
+/* Numbers carry the emotion — keep them aligned. */
+[data-money],
+.krado-num {
+  font-variant-numeric: tabular-nums;
+}
