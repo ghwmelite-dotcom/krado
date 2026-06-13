@@ -466,6 +466,9 @@ header{padding:26px 0 14px}
 h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;letter-spacing:-.02em}
 .area{font-size:13px;color:var(--muted);margin-top:2px}
 .subhead{font-size:14px;color:var(--forest-900);background:var(--forest-50);border-radius:10px;padding:9px 12px;margin-top:12px}
+.trustbadges{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.trustbadges li{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink)}
+.trustbadges svg{flex-shrink:0;color:var(--forest-600)}
 h2{font-weight:500;font-size:16px;margin:26px 0 12px}
 .stepper{display:flex;gap:8px;margin:14px 0 4px}
 .step{flex:1;text-align:center;font-size:12px;font-weight:500;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
@@ -618,6 +621,28 @@ publicPage.get("/:handle", async (c) => {
             <h1>{artisan.shop_name}</h1>
             <p class="area">{artisan.area}</p>
             <p class="subhead">{t(lang, "book_subhead")}</p>
+            <ul class="trustbadges">
+              <li>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z" />
+                </svg>
+                {t(lang, "trust_refund")}
+              </li>
+              <li>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="5" y="11" width="14" height="9" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                </svg>
+                {t(lang, "trust_hold")}
+              </li>
+              <li>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <ellipse cx="12" cy="6.5" rx="7.5" ry="3.5" />
+                  <path d="M4.5 6.5v11c0 1.9 3.4 3.5 7.5 3.5s7.5-1.6 7.5-3.5v-11" />
+                </svg>
+                {t(lang, "trust_counts")}
+              </li>
+            </ul>
           </header>
 
           <div class="stepper" id="stepper">

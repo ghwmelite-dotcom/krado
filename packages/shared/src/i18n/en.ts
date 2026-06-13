@@ -181,6 +181,19 @@ export const en = {
   slot_locked_title: "Slot locked",
   slot_locked_body: "Your deposit is in and your slot is locked.",
   book_subhead: "Lock your slot with a small deposit — pay the rest at the shop.",
+
+  // up-front trust badges (client booking page)
+  trust_refund: "Refunded if the shop cancels",
+  trust_hold: "Your slot is held the moment you pay",
+  trust_counts: "Deposit counts toward your cut",
+
+  // first-login welcome guide (artisan app)
+  welcome_title: "Welcome to Krado, {name}",
+  welcome_lead: "Two things to know — then you're set:",
+  welcome_share: "Share your booking link so clients can lock their own slots. It's the gold card just below.",
+  welcome_money: "Your day's money lives here — your goal, earnings, and susu set-aside, all on one screen.",
+  welcome_noshow: "Clients pay a small deposit to book, so a no-show costs them, not you.",
+  welcome_dismiss: "Got it",
 } as const;
 
 export type MessageKey = keyof typeof en;

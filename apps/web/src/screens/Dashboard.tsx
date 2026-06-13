@@ -77,10 +77,54 @@ function ShareIcon() {
   );
 }
 
+const WELCOME_KEY = "krado_welcomed_v1";
+
+/** Shown once, the first time an artisan opens the dashboard. */
+function WelcomeCard({ lang, name, onDismiss }: { lang: Lang; name: string; onDismiss: () => void }) {
+  const points: Array<{ key: "welcome_share" | "welcome_money" | "welcome_noshow"; n: string }> = [
+    { key: "welcome_share", n: "1" },
+    { key: "welcome_money", n: "2" },
+    { key: "welcome_noshow", n: "3" },
+  ];
+  return (
+    <section className="welcome">
+      <p className="welcome__title">{t(lang, "welcome_title", { name })}</p>
+      <p className="welcome__lead">{t(lang, "welcome_lead")}</p>
+      <ul className="welcome__list">
+        {points.map((p) => (
+          <li key={p.key}>
+            <span className="welcome__n">{p.n}</span>
+            <span>{t(lang, p.key)}</span>
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="krado-btn krado-btn--forest" onClick={onDismiss}>
+        {t(lang, "welcome_dismiss")}
+      </button>
+    </section>
+  );
+}
+
 export function Dashboard() {
   const { lang, setLang } = useLang();
   const [data, setData] = useState<DashboardPayload | null>(null);
   const [failed, setFailed] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    try {
+      return localStorage.getItem(WELCOME_KEY) === null;
+    } catch {
+      return false;
+    }
+  });
+
+  function dismissWelcome() {
+    setShowWelcome(false);
+    try {
+      localStorage.setItem(WELCOME_KEY, "1");
+    } catch {
+      // private mode — fine, it just shows again next time
+    }
+  }
 
   const load = useCallback(async () => {
     try {
@@ -140,6 +184,8 @@ export function Dashboard() {
       </header>
 
       {data.offline && <p className="banner banner--offline">{t(lang, "offline_cached")}</p>}
+
+      {showWelcome && <WelcomeCard lang={lang} name={firstName} onDismiss={dismissWelcome} />}
 
       <div className="goal-hero">
         <GoalBar label={t(lang, "goal_label")} earned={data.earned_today} goal={data.daily_goal} lang={lang} />

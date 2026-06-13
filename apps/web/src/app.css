@@ -251,6 +251,76 @@ h3 {
   margin: 0;
 }
 
+/* first-login welcome guide */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: var(--krado-space-2);
+  background: var(--krado-paper);
+  border: 1px solid var(--krado-line);
+  border-radius: var(--krado-radius-lg);
+  padding: var(--krado-space-3);
+  box-shadow: var(--krado-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.welcome::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    #ba7517 0 28%,
+    #2c2c2a 28% 36%,
+    #3b6d11 36% 64%,
+    #a32d2d 64% 72%,
+    #ba7517 72% 100%
+  );
+}
+.welcome__title {
+  font-family: var(--krado-font-display);
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 6px 0 0;
+}
+.welcome__lead {
+  font-size: var(--krado-text-label-lg);
+  opacity: 0.8;
+  margin: 0;
+}
+.welcome__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--krado-space-2);
+  margin: var(--krado-space-1) 0 var(--krado-space-2);
+}
+.welcome__list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: var(--krado-text-label-lg);
+  line-height: 1.45;
+}
+.welcome__n {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+  font-size: var(--krado-text-floor);
+  font-weight: var(--krado-weight-medium);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
 /* persistent "share your shop" card — the #1 growth action */
 .share-card {
   display: flex;
