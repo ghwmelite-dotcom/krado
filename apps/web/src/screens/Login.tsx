@@ -54,10 +54,21 @@ export function Login() {
     <div className="app-shell">
       <KenteStrip />
       <div className="auth-screen">
+        <div className="auth-brand" aria-hidden="true">
+          <span className="auth-brand__blocks">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="auth-brand__mark">
+            Krado<span className="auth-brand__dot">.</span>
+          </span>
+          <span className="auth-brand__tag">Lock your slot.</span>
+        </div>
         <h1>{t(lang, "login_title")}</h1>
 
         {phase === "phone" ? (
-          <form onSubmit={sendCode} className="onboard-step">
+          <form onSubmit={sendCode} className="onboard-step auth-card">
             <label className="field">
               <span className="field__label">{t(lang, "login_phone_label")}</span>
               <input
@@ -75,8 +86,8 @@ export function Login() {
             </MoMoButton>
           </form>
         ) : (
-          <form onSubmit={verify} className="onboard-step">
-            <p className="empty-note">{t(lang, "login_code_sent")}</p>
+          <form onSubmit={verify} className="onboard-step auth-card">
+            <p className="auth-card__note">{t(lang, "login_code_sent")}</p>
             <label className="field">
               <span className="field__label">{t(lang, "login_code_label")}</span>
               <input
@@ -99,7 +110,7 @@ export function Login() {
 
         {error && <p className="form-error">{error}</p>}
 
-        <Link to="/onboarding" className="empty-note">
+        <Link to="/onboarding" className="auth-alt">
           {t(lang, "login_new_shop")}
         </Link>
       </div>

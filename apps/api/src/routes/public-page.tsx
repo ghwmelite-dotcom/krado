@@ -146,7 +146,57 @@ footer{border-top:1px solid var(--line);padding:28px 0 36px;display:flex;justify
   .reveal{opacity:0;transform:translateY(14px);animation:rise .65s ease-out forwards}
   .reveal.r2{animation-delay:.08s}.reveal.r3{animation-delay:.16s}.reveal.r4{animation-delay:.24s}.reveal.r5{animation-delay:.34s}
   @keyframes rise{to{opacity:1;transform:none}}
+
+  /* decorative kente blocks drift slowly — the strip itself never moves */
+  .blocks .b1{animation:drift 7s ease-in-out infinite alternate}
+  .blocks .b2{animation:drift 9s ease-in-out infinite alternate-reverse}
+  .blocks .b3{animation:drift 6s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translateY(-6px)}to{transform:translateY(8px)}}
+
+  /* the phone plays the booking flow on loop: pick 2:30 → pay → locked */
+  .demo-slot{animation:slotpick 7s ease-out infinite}
+  @keyframes slotpick{
+    0%,12%{background:var(--paper);color:#6b6b66;border-color:#CFCBC0}
+    18%,100%{background:var(--forest-900);color:var(--forest-100);border-color:var(--forest-900)}
+  }
+  .paybar{animation:paypress 7s ease-out infinite}
+  @keyframes paypress{
+    0%,30%{transform:none;filter:none}
+    34%{transform:scale(.97);filter:brightness(.96)}
+    38%,100%{transform:none;filter:none}
+  }
+  .lockedchip{animation:lockpop 7s ease-out infinite}
+  @keyframes lockpop{
+    0%,44%{opacity:0;transform:translateY(4px) scale(.9)}
+    52%,88%{opacity:1;transform:none}
+    96%,100%{opacity:0;transform:translateY(2px)}
+  }
+
+  /* scroll-triggered reveals (script adds .in) */
+  .js .sr{opacity:0;transform:translateY(18px);transition:opacity .6s ease-out,transform .6s ease-out}
+  .js .sr.in{opacity:1;transform:none}
+  .js .sr2.in{transition-delay:.1s}
+  .js .sr3.in{transition-delay:.2s}
+
+  /* the money band's goal bar fills when it scrolls into view */
+  .js .money .fill{width:0;transition:width .9s ease-out .25s}
+  .js .money.in .fill{width:72.5%}
+
+  /* statement underline draws in */
+  .statement em{background:linear-gradient(var(--clay-600),var(--clay-600)) left bottom / 0% 2px no-repeat}
+  .js .statement.in em{background-size:100% 2px;transition:background-size .8s ease-out .2s}
+
+  .step .bar{transition:height .2s ease-out}
+  .step:hover .bar{height:7px}
 }
+`;
+
+const LANDING_JS = `
+document.documentElement.classList.add('js');
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+},{threshold:.25});
+document.querySelectorAll('.sr,.money,.statement').forEach(function(el){io.observe(el)});
 `;
 
 const LockIcon = ({ size = 15 }: { size?: number }) => (
@@ -244,7 +294,7 @@ publicPage.get("/", (c) => {
                   </div>
                   <div class="slotrow">
                     <span class="pill num">2:00 pm</span>
-                    <span class="pill on num">2:30 pm</span>
+                    <span class="pill on demo-slot num">2:30 pm</span>
                     <span class="pill num">3:30 pm</span>
                   </div>
                   <div class="paybar num">
@@ -267,7 +317,7 @@ publicPage.get("/", (c) => {
           </section>
 
           <section class="how" id="how">
-            <div class="step">
+            <div class="step sr">
               <i class="bar"></i>
               <div class="no num">01</div>
               <h3>Set up in two minutes</h3>
@@ -276,7 +326,7 @@ publicPage.get("/", (c) => {
                 ready-to-paste WhatsApp status.
               </p>
             </div>
-            <div class="step">
+            <div class="step sr sr2">
               <i class="bar"></i>
               <div class="no num">02</div>
               <h3>Clients lock slots with MoMo</h3>
@@ -285,7 +335,7 @@ publicPage.get("/", (c) => {
                 confirm. The deposit counts toward the cut.
               </p>
             </div>
-            <div class="step">
+            <div class="step sr sr3">
               <i class="bar"></i>
               <div class="no num">03</div>
               <h3>Your money, on one screen</h3>
@@ -320,7 +370,7 @@ publicPage.get("/", (c) => {
             </div>
           </section>
 
-          <section class="final">
+          <section class="final sr">
             <h2>Your chair, always booked.</h2>
             <p>Onboard now — your booking link is live before your next client sits down.</p>
             <div class="cta">
@@ -339,6 +389,7 @@ publicPage.get("/", (c) => {
           </footer>
         </div>
         <KenteStrip height={8} />
+        <script dangerouslySetInnerHTML={{ __html: LANDING_JS }} />
       </body>
     </html>,
   );

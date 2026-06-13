@@ -448,10 +448,106 @@ h3 {
   width: 100%;
 }
 
-.auth-screen h1 {
+@media (prefers-reduced-motion: no-preference) {
+  .auth-screen > * {
+    animation: krado-rise 0.5s ease-out backwards;
+  }
+  .auth-screen > *:nth-child(2) { animation-delay: 0.08s; }
+  .auth-screen > *:nth-child(3) { animation-delay: 0.16s; }
+  .auth-screen > *:nth-child(4) { animation-delay: 0.24s; }
+}
+
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--krado-space-2);
+  padding-top: var(--krado-space-4);
+}
+
+.auth-brand__blocks {
+  display: flex;
+  gap: 6px;
+}
+
+.auth-brand__blocks i {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.auth-brand__blocks i:nth-child(1) {
+  background: var(--krado-gold-200);
+}
+
+.auth-brand__blocks i:nth-child(2) {
+  background: var(--krado-forest-600);
+}
+
+.auth-brand__blocks i:nth-child(3) {
+  background: var(--krado-clay-600);
+  width: 9px;
+}
+
+.auth-brand__mark {
   font-family: var(--krado-font-display);
-  font-size: 28px;
-  letter-spacing: -0.02em;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.auth-brand__dot {
+  color: var(--krado-gold-200);
+}
+
+.auth-brand__tag {
+  font-family: var(--krado-font-display);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--krado-gold-800);
+}
+
+.auth-screen h1 {
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+  opacity: 0.8;
+}
+
+.auth-card {
+  background: var(--krado-paper);
+  border: 1px solid var(--krado-line);
+  border-radius: var(--krado-radius-lg);
+  padding: var(--krado-space-4);
+  box-shadow: var(--krado-shadow-md);
+}
+
+.auth-card__note {
+  margin: 0;
+  font-size: var(--krado-text-label-lg);
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+  border-radius: var(--krado-radius-md);
+  padding: var(--krado-space-2) var(--krado-space-3);
+}
+
+.auth-alt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--krado-touch-target);
+  border: 1px solid #cfccc2;
+  border-radius: var(--krado-radius-md);
+  background: transparent;
+  color: var(--krado-ink);
+  text-decoration: none;
+  font-size: var(--krado-text-label-lg);
+  font-weight: var(--krado-weight-medium);
+  transition: border-color 150ms ease-out;
+}
+
+.auth-alt:hover {
+  border-color: var(--krado-ink);
 }
 
 .code-input {
