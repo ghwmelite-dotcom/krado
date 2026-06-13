@@ -1,19 +1,28 @@
 import { nanoid } from "nanoid";
-import type { Bindings, QueueMessage } from "../env";
+import type { Bindings } from "../env";
 
 /**
- * Every outbound WhatsApp send is enqueued here: a message_log row (status
- * 'queued') is the audit trail; the queue consumer flips it to sent/failed.
+ * Outbound Telegram notification. Telegram can only reach a user who has
+ * linked the bot, so this is a no-op (no log row, no enqueue) when chatId is
+ * null — the recipient simply isn't reachable yet. When it is, a message_log
+ * row records the attempt and the queue consumer flips its status.
  */
-export async function enqueueTemplate(
+export async function notify(
   env: Bindings,
-  msg: Omit<QueueMessage, "kind" | "log_id">,
+  opts: {
+    chatId: string | null | undefined;
+    /** message type, stored in message_log.template (e.g. "tg_reminder_2h") */
+    type: string;
+    text: string;
+    booking_id?: string;
+  },
 ): Promise<void> {
+  if (!opts.chatId) return;
   const logId = `msg_${nanoid(12)}`;
   await env.DB.prepare(
-    "INSERT INTO message_log (id, recipient, template, language, booking_id) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO message_log (id, recipient, template, booking_id) VALUES (?, ?, ?, ?)",
   )
-    .bind(logId, msg.recipient, msg.template, msg.language, msg.booking_id ?? null)
+    .bind(logId, opts.chatId, opts.type, opts.booking_id ?? null)
     .run();
-  await env.MESSAGES.send({ kind: "whatsapp_template", ...msg, log_id: logId });
+  await env.MESSAGES.send({ kind: "telegram", chat_id: opts.chatId, text: opts.text, log_id: logId, booking_id: opts.booking_id });
 }

@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { NudgeAction } from "@krado/shared";
+import { NudgeAction, t } from "@krado/shared";
 import type { AppEnv } from "../env";
 import { requireSession } from "../middleware/session";
-import { enqueueTemplate } from "../lib/messaging";
+import { notify } from "../lib/messaging";
 
 export const nudges = new Hono<AppEnv>();
 
@@ -26,7 +26,7 @@ nudges.post("/:id/action", async (c) => {
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
 
   const nudge = await c.env.DB.prepare(
-    `SELECT n.id, n.status, c.phone AS client_phone, c.name AS client_name,
+    `SELECT n.id, n.status, c.telegram_chat_id AS chat_id, c.name AS client_name,
             a.handle, a.shop_name, a.language
      FROM nudges n
      JOIN clients c ON c.id = n.client_id
@@ -37,7 +37,7 @@ nudges.post("/:id/action", async (c) => {
     .first<{
       id: string;
       status: string;
-      client_phone: string;
+      chat_id: string | null;
       client_name: string | null;
       handle: string;
       shop_name: string;
@@ -51,14 +51,19 @@ nudges.post("/:id/action", async (c) => {
     return c.json({ ok: true, status: "dismissed" });
   }
 
-  // One tap: pre-written template with the booking link. The artisan
-  // approved this send — v1 never messages clients autonomously.
-  await enqueueTemplate(c.env, {
-    template: "wa_rebook_nudge",
-    language: nudge.language,
-    recipient: nudge.client_phone,
-    params: [nudge.client_name ?? "there", nudge.shop_name, `${c.env.APP_BASE_URL}/${nudge.handle}`],
+  // Artisan-approved send. If the client linked Telegram we message them;
+  // otherwise the artisan shares the link themselves (we return it). Either
+  // way the nudge is resolved.
+  const link = `${c.env.APP_BASE_URL}/${nudge.handle}`;
+  await notify(c.env, {
+    chatId: nudge.chat_id,
+    type: "tg_rebook_nudge",
+    text: t(nudge.language, "tg_rebook_nudge", {
+      client: nudge.client_name ?? "there",
+      shop: nudge.shop_name,
+      link,
+    }),
   });
   await c.env.DB.prepare("UPDATE nudges SET status = 'sent' WHERE id = ?").bind(nudge.id).run();
-  return c.json({ ok: true, status: "sent" });
+  return c.json({ ok: true, status: "sent", delivered: !!nudge.chat_id, link });
 });

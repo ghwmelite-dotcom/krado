@@ -23,7 +23,9 @@ async function seed(startsAt = futureIso(3)) {
   await env.DB.prepare(
     "INSERT OR IGNORE INTO services (id, artisan_id, name, price, duration_min) VALUES ('svc_b', 'art_b', 'Fade', 4000, 45)",
   ).run();
-  await env.DB.prepare("INSERT OR IGNORE INTO clients (id, phone) VALUES ('cl_b', '+233240000020')").run();
+  await env.DB.prepare(
+    "INSERT OR IGNORE INTO clients (id, phone, telegram_chat_id) VALUES ('cl_b', '+233240000020', '770770')",
+  ).run();
   await env.DB.prepare(
     `INSERT INTO bookings (id, artisan_id, client_id, service_id, service_name, price, duration_min, deposit, starts_at, status)
      VALUES ('bk_1', 'art_b', 'cl_b', 'svc_b', 'Fade', 4000, 45, 1000, ?, 'locked')`,
@@ -93,9 +95,9 @@ describe("booking lifecycle", () => {
     expect(refund).toMatchObject({ amount: 1000, status: "success" });
 
     const msg = await env.DB.prepare(
-      "SELECT recipient FROM message_log WHERE template = 'wa_refund_notice'",
+      "SELECT recipient FROM message_log WHERE template = 'tg_refund_notice'",
     ).first();
-    expect(msg).toMatchObject({ recipient: "+233240000020" });
+    expect(msg).toMatchObject({ recipient: "770770" }); // client's linked Telegram chat
   });
 
   test("another artisan's session cannot touch the booking", async () => {

@@ -434,6 +434,11 @@ input:focus{outline:none;border-color:var(--forest-600);box-shadow:0 0 0 3px var
 .paybtn.alt{background:var(--paper);border:1px solid #CFCBC0;color:var(--ink);box-shadow:none}
 .paybtn.alt:hover{border-color:var(--ink);box-shadow:none}
 .paybtn:disabled{opacity:.5}
+.tgopt{display:none;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;background:#E7F1FB;color:#1B5E91;text-decoration:none}
+.tgopt.show{display:flex}
+.tgopt svg{flex-shrink:0;color:#229ED9}
+.tgopt b{display:block;font-size:14px;font-weight:500}
+.tgopt small{display:block;font-size:11.5px;opacity:.8;margin-top:1px}
 .trust{font-size:11.5px;color:var(--muted);margin-top:12px;display:flex;gap:7px;align-items:flex-start}
 .trust ul{list-style:none}
 .trust li{margin-top:2px}
@@ -613,6 +618,15 @@ publicPage.get("/:handle", async (c) => {
               </button>
             )}
             <div class="manual hidden" id="manualbox"></div>
+            <a class="tgopt hidden" id="tgopt" target="_blank" rel="noopener">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2l-10.4 6.5-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1.3z" />
+              </svg>
+              <span>
+                <b>{t(lang, "tg_connect_client")}</b>
+                <small>{t(lang, "tg_connect_client_sub")}</small>
+              </span>
+            </a>
             <div class="trust">
               <svg
                 width="14"
@@ -719,6 +733,7 @@ function ensureHold(){
     .then(function(h){state.hold={token:h.hold_token,deposit:h.deposit};state.exp=new Date(h.expires_at);
       startCountdown();updatePay();
       $('holdbox').textContent='';show('holdbox');tick();
+      if(h.telegram_link){var o=$('tgopt');o.href=h.telegram_link;o.classList.add('show')}
       return state.hold});
 }
 function tick(){

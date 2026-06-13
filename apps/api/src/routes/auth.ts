@@ -1,52 +1,39 @@
 import { Hono } from "hono";
-import { OtpRequest, OtpVerify, t } from "@krado/shared";
+import { LoginInput, t } from "@krado/shared";
 import type { AppEnv } from "../env";
 import { sessionKey, SESSION_TTL_SECONDS, requireSession } from "../middleware/session";
+import { verifyPin } from "../lib/pin";
 
-const OTP_TTL_S = 600; // 10 minutes
+const MAX_ATTEMPTS = 5;
+const ATTEMPT_WINDOW_S = 900; // 15 minutes
 
 export const auth = new Hono<AppEnv>();
 
-auth.post("/otp", async (c) => {
-  const parsed = OtpRequest.safeParse(await c.req.json().catch(() => null));
-  if (!parsed.success) return c.json({ error: "invalid_phone" }, 400);
-  const { phone } = parsed.data;
-
-  // Only known artisans get codes — but always answer 200 so the endpoint
-  // can't be used to enumerate who is on Krado.
-  const artisan = await c.env.DB.prepare("SELECT id, language FROM artisans WHERE phone = ?")
-    .bind(phone)
-    .first<{ id: string; language: "en" | "tw" }>();
-
-  if (artisan) {
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    await c.env.KV.put(`otp:${phone}`, code, { expirationTtl: OTP_TTL_S });
-    await c.env.MESSAGES.send({
-      kind: "whatsapp_template",
-      template: "wa_otp",
-      language: artisan.language ?? "en",
-      recipient: phone,
-      params: [code],
-    });
-  }
-  return c.json({ ok: true });
-});
-
-auth.post("/verify", async (c) => {
-  const parsed = OtpVerify.safeParse(await c.req.json().catch(() => null));
+auth.post("/login", async (c) => {
+  const parsed = LoginInput.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: "invalid_input" }, 400);
-  const { phone, code } = parsed.data;
+  const { phone, pin } = parsed.data;
 
-  const stored = await c.env.KV.get(`otp:${phone}`);
-  if (!stored || stored !== code) return c.json({ error: "invalid_code", message: t("en", "login_invalid_code") }, 401);
+  // Rate-limit by phone so a 4-digit PIN can't be brute-forced.
+  const failKey = `loginfail:${phone}`;
+  const fails = Number((await c.env.KV.get(failKey)) ?? "0");
+  if (fails >= MAX_ATTEMPTS) return c.json({ error: "too_many_attempts" }, 429);
 
-  const artisan = await c.env.DB.prepare("SELECT id FROM artisans WHERE phone = ?")
+  const artisan = await c.env.DB.prepare("SELECT id, pin_hash, pin_salt FROM artisans WHERE phone = ?")
     .bind(phone)
-    .first<{ id: string }>();
-  if (!artisan) return c.json({ error: "invalid_code" }, 401);
+    .first<{ id: string; pin_hash: string | null; pin_salt: string | null }>();
 
-  await c.env.KV.delete(`otp:${phone}`); // single-use
+  const ok =
+    artisan?.pin_hash && artisan.pin_salt
+      ? await verifyPin(pin, artisan.pin_hash, artisan.pin_salt)
+      : false;
 
+  if (!ok || !artisan) {
+    await c.env.KV.put(failKey, String(fails + 1), { expirationTtl: ATTEMPT_WINDOW_S });
+    return c.json({ error: "invalid_credentials", message: t("en", "login_wrong_pin") }, 401);
+  }
+
+  await c.env.KV.delete(failKey);
   const token = crypto.randomUUID() + crypto.randomUUID().replaceAll("-", "");
   await c.env.KV.put(sessionKey(token), artisan.id, { expirationTtl: SESSION_TTL_SECONDS });
   return c.json({ token });
@@ -58,7 +45,7 @@ me.get("/", requireSession, async (c) => {
   const artisan = await c.env.DB.prepare(
     `SELECT id, handle, name, shop_name, area, phone, momo_number, language,
             daily_goal, deposit_pct, deposit_floor, susu_mode, susu_value, hours_json, status,
-            accept_manual, bank_details
+            accept_manual, bank_details, telegram_chat_id
      FROM artisans WHERE id = ?`,
   )
     .bind(c.var.artisanId)

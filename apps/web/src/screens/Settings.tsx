@@ -3,6 +3,14 @@ import { t, type Lang } from "@krado/shared";
 import { api } from "../api";
 import { useLang } from "../lang";
 
+function TelegramIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2l-10.4 6.5-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1.3z" />
+    </svg>
+  );
+}
+
 interface SettingsForm {
   dailyGoalGhs: string;
   depositPct: string;
@@ -20,6 +28,16 @@ export function Settings() {
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tgLinked, setTgLinked] = useState(false);
+
+  async function connectTelegram() {
+    try {
+      const { telegram_link } = await api.telegramLink();
+      window.open(telegram_link, "_blank", "noopener");
+    } catch {
+      setError(t(lang, "error_generic"));
+    }
+  }
 
   useEffect(() => {
     let alive = true;
@@ -40,6 +58,7 @@ export function Settings() {
           bankDetails: artisan.bank_details ?? "",
           language: artisan.language,
         });
+        setTgLinked(Boolean(artisan.telegram_chat_id));
       })
       .catch(() => setError(t(lang, "error_generic")));
     return () => {
@@ -90,6 +109,23 @@ export function Settings() {
       <header className="screen-head">
         <h1 className="screen-head__greeting">{t(lang, "settings")}</h1>
       </header>
+
+      {tgLinked ? (
+        <div className="tg-connect tg-connect--done">
+          <TelegramIcon />
+          <span>
+            <b>{t(lang, "tg_connected")}</b>
+          </span>
+        </div>
+      ) : (
+        <button type="button" className="tg-connect" onClick={connectTelegram} style={{ border: 0, cursor: "pointer", textAlign: "left", font: "inherit" }}>
+          <TelegramIcon />
+          <span>
+            <b>{t(lang, "tg_connect_title")}</b>
+            <small>{t(lang, "tg_connect_artisan")}</small>
+          </span>
+        </button>
+      )}
 
       <form className="card" onSubmit={submit}>
         <label className="field">

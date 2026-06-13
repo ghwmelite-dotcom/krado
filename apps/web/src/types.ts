@@ -15,9 +15,9 @@ export interface Artisan {
   susu_mode: "flat" | "pct" | "off";
   susu_value: number;
   hours_json: string;
-  /** Not returned by /api/me today — optional so the UI degrades gracefully. */
   accept_manual?: number | boolean;
   bank_details?: string | null;
+  telegram_chat_id?: string | null;
 }
 
 export interface Service {
@@ -95,6 +95,7 @@ export interface OnboardResult {
   link: string;
   token: string;
   share_message: string;
+  telegram_link: string;
 }
 
 export interface OnboardPayload {
@@ -102,7 +103,8 @@ export interface OnboardPayload {
   shop_name: string;
   area: string;
   phone: string;
-  momo_number: string;
+  pin: string;
+  momo_number?: string;
   services: Array<{ name: string; price: number; duration_min: number }>;
   hours: Hours;
   language?: Lang;

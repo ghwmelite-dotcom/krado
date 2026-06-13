@@ -6,11 +6,21 @@ import { api, setToken } from "../api";
 import { useLang } from "../lang";
 import type { OnboardResult } from "../types";
 
+function TelegramIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-.9.5l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2l-10.4 6.5-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.3 1.3z" />
+    </svg>
+  );
+}
+
 /**
  * The 2-minute onboarding. Product invariant (CLAUDE.md): exactly 3 steps,
  * and exactly 7 required fields across the whole flow —
- * name · shop_name · area · phone · momo_number · services · hours.
- * Each required field carries data-field-required; tests count them.
+ * name · shop_name · area · phone · pin · services · hours.
+ * The MoMo number defaults to the login phone (an optional toggle reveals a
+ * separate field), so it doesn't count against the 7. Each required field
+ * carries data-field-required; tests count them.
  */
 
 type DayKey = keyof Hours;
@@ -59,7 +69,9 @@ export function Onboarding({ initialStep = 0 }: OnboardingProps) {
   const [result, setResult] = useState<OnboardResult | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const [you, setYou] = useState({ name: "", shop_name: "", area: "", phone: "", momo_number: "" });
+  const [you, setYou] = useState({ name: "", shop_name: "", area: "", phone: "", pin: "" });
+  const [momoDifferent, setMomoDifferent] = useState(false);
+  const [momoNumber, setMomoNumber] = useState("");
   const [services, setServices] = useState<ServiceRow[]>([
     { name: "", priceGhs: "", durationMin: "30" },
     { name: "", priceGhs: "", durationMin: "30" },
@@ -91,7 +103,12 @@ export function Onboarding({ initialStep = 0 }: OnboardingProps) {
     setError(null);
     try {
       const payload = {
-        ...you,
+        name: you.name,
+        shop_name: you.shop_name,
+        area: you.area,
+        phone: you.phone,
+        pin: you.pin,
+        ...(momoDifferent && momoNumber.trim() ? { momo_number: momoNumber.trim() } : {}),
         services: services.map((row) => ({
           name: row.name.trim(),
           // GHS at the edge → integer pesewas immediately.
@@ -137,6 +154,13 @@ export function Onboarding({ initialStep = 0 }: OnboardingProps) {
               {copied ? t(lang, "copied") : t(lang, "copy_link")}
             </button>
           </div>
+          <a className="tg-connect" href={result.telegram_link} target="_blank" rel="noopener">
+            <TelegramIcon />
+            <span>
+              <b>{t(lang, "tg_connect_title")}</b>
+              <small>{t(lang, "tg_connect_artisan")}</small>
+            </span>
+          </a>
           <MoMoButton onClick={() => navigate("/", { replace: true })}>
             {t(lang, "go_to_dashboard")}
           </MoMoButton>
@@ -200,17 +224,42 @@ export function Onboarding({ initialStep = 0 }: OnboardingProps) {
               />
             </label>
             <label className="field">
-              <span className="field__label">{t(lang, "field_momo")}</span>
+              <span className="field__label">{t(lang, "field_pin")}</span>
               <input
-                type="tel"
-                inputMode="tel"
-                value={you.momo_number}
-                onChange={(e) => setYouField("momo_number", e.target.value)}
+                className="code-input"
+                type="password"
+                inputMode="numeric"
+                autoComplete="new-password"
+                pattern="\d{4}"
+                maxLength={4}
+                placeholder="••••"
+                value={you.pin}
+                onChange={(e) => setYouField("pin", e.target.value.replace(/\D/g, ""))}
                 required
-                data-field-required="momo_number"
-                placeholder="024 123 4567"
+                data-field-required="pin"
               />
+              <span className="field__hint">{t(lang, "field_pin_hint")}</span>
             </label>
+            <label className="field field--inline">
+              <input
+                type="checkbox"
+                checked={momoDifferent}
+                onChange={(e) => setMomoDifferent(e.target.checked)}
+              />
+              <span className="field__label">{t(lang, "field_momo_different")}</span>
+            </label>
+            {momoDifferent && (
+              <label className="field">
+                <span className="field__label">{t(lang, "field_momo")}</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  value={momoNumber}
+                  onChange={(e) => setMomoNumber(e.target.value)}
+                  placeholder="024 123 4567"
+                />
+              </label>
+            )}
             <MoMoButton type="submit">{t(lang, "next")}</MoMoButton>
           </form>
         )}

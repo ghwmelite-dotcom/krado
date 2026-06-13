@@ -7,7 +7,7 @@ describe("OnboardInput", () => {
     shop_name: "Kojo's Cuts",
     area: "Madina, Accra",
     phone: "0244123456",
-    momo_number: "0244123456",
+    pin: "1234",
     services: [
       { name: "Low fade", price: 4000, duration_min: 45 },
       { name: "Trim", price: 2500, duration_min: 30 },
@@ -19,12 +19,25 @@ describe("OnboardInput", () => {
     const parsed = OnboardInput.parse(valid);
     expect(parsed.phone).toBe("+233244123456"); // normalized in schema
     expect(parsed.services).toHaveLength(2);
+    expect(parsed.momo_number).toBeUndefined(); // defaults to phone in the route
   });
 
-  test("the 2-minute invariant: exactly 7 required fields", () => {
-    expect(Object.keys(OnboardInput.shape)).toHaveLength(8); // 7 required + optional language
+  test("the 2-minute invariant: 7 required fields (momo + language optional)", () => {
     const required = Object.entries(OnboardInput.shape).filter(([, v]) => !v.isOptional());
+    expect(required.map(([k]) => k).sort()).toEqual(
+      ["area", "hours", "name", "phone", "pin", "services", "shop_name"].sort(),
+    );
     expect(required).toHaveLength(7);
+  });
+
+  test("requires a 4-digit PIN", () => {
+    expect(() => OnboardInput.parse({ ...valid, pin: "12" })).toThrow();
+    expect(() => OnboardInput.parse({ ...valid, pin: "abcd" })).toThrow();
+  });
+
+  test("accepts a distinct MoMo number when provided", () => {
+    const parsed = OnboardInput.parse({ ...valid, momo_number: "0551112222" });
+    expect(parsed.momo_number).toBe("+233551112222");
   });
 
   test("requires at least 2 services", () => {

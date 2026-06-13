@@ -12,7 +12,9 @@ async function seedArtisan() {
     `INSERT OR IGNORE INTO artisans (id, handle, name, shop_name, area, phone, momo_number, hours_json, susu_mode, susu_value)
      VALUES ('art_c', 'nana', 'Nana', 'Nana Trims', 'Dansoman', '+233244000666', '+233244000666', '{}', 'flat', 500)`,
   ).run();
-  await env.DB.prepare("INSERT OR IGNORE INTO clients (id, phone, name) VALUES ('cl_c', '+233240000050', 'Akosua')").run();
+  await env.DB.prepare(
+    "INSERT OR IGNORE INTO clients (id, phone, name, telegram_chat_id) VALUES ('cl_c', '+233240000050', 'Akosua', '660660')",
+  ).run();
   await env.DB.prepare(
     "INSERT OR IGNORE INTO services (id, artisan_id, name, price, duration_min) VALUES ('svc_c', 'art_c', 'Trim', 2500, 30)",
   ).run();
@@ -50,7 +52,7 @@ describe("reminders cron", () => {
     await sendReminders(env); // second run must not duplicate
 
     const { results } = await env.DB.prepare(
-      "SELECT booking_id FROM message_log WHERE template = 'wa_reminder_2h'",
+      "SELECT booking_id FROM message_log WHERE template = 'tg_reminder_2h'",
     ).all<{ booking_id: string }>();
     expect(results).toHaveLength(1);
     expect(results[0]!.booking_id).toBe(soon);
@@ -122,9 +124,9 @@ describe("nudge approval routes (artisan always in the loop)", () => {
     expect(nudge).toMatchObject({ status: "sent" });
 
     const msg = await env.DB.prepare(
-      "SELECT recipient FROM message_log WHERE template = 'wa_rebook_nudge'",
+      "SELECT recipient FROM message_log WHERE template = 'tg_rebook_nudge'",
     ).first();
-    expect(msg).toMatchObject({ recipient: "+233240000050" });
+    expect(msg).toMatchObject({ recipient: "660660" }); // client's linked Telegram chat
   });
 
   test("one tap dismisses", async () => {

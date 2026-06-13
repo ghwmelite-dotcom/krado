@@ -9,7 +9,9 @@ declare module "cloudflare:test" {
     PAYSTACK_SECRET_KEY: string;
     PAYSTACK_WEBHOOK_SECRET: string;
     SESSION_SIGNING_KEY: string;
-    WA_VERIFY_TOKEN: string;
+    TELEGRAM_BOT_USERNAME: string;
+    TELEGRAM_BOT_TOKEN?: string;
+    TELEGRAM_WEBHOOK_SECRET?: string;
     MESSAGES: Queue;
   }
 }

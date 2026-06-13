@@ -21,7 +21,7 @@ export default defineWorkersConfig(async () => {
               PAYSTACK_SECRET_KEY: "sk_test_secret",
               PAYSTACK_WEBHOOK_SECRET: "whsec_test",
               SESSION_SIGNING_KEY: "test_signing_key",
-              WA_VERIFY_TOKEN: "test_verify",
+              TELEGRAM_BOT_USERNAME: "KradoTestBot",
             },
           },
         },

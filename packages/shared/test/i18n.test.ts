@@ -34,18 +34,12 @@ describe("t()", () => {
 });
 
 describe("greetingFor — clock boundaries from the design system", () => {
-  test("Maakye until 11:59, Maaha until 17:59, then Maadwo", () => {
-    expect(greetingFor("tw", 0)).toBe("Maakye");
-    expect(greetingFor("tw", 11 * 60 + 59)).toBe("Maakye");
-    expect(greetingFor("tw", 12 * 60)).toBe("Maaha");
-    expect(greetingFor("tw", 17 * 60 + 59)).toBe("Maaha");
-    expect(greetingFor("tw", 18 * 60)).toBe("Maadwo");
-    expect(greetingFor("tw", 23 * 60 + 59)).toBe("Maadwo");
-  });
-
-  test("english greetings follow the same clock", () => {
-    expect(greetingFor("en", 9 * 60)).toBe("Good morning");
-    expect(greetingFor("en", 14 * 60)).toBe("Good afternoon");
-    expect(greetingFor("en", 20 * 60)).toBe("Good evening");
+  test("morning until 11:59, afternoon until 17:59, then evening", () => {
+    expect(greetingFor("en", 0)).toBe("Good morning");
+    expect(greetingFor("en", 11 * 60 + 59)).toBe("Good morning");
+    expect(greetingFor("en", 12 * 60)).toBe("Good afternoon");
+    expect(greetingFor("en", 17 * 60 + 59)).toBe("Good afternoon");
+    expect(greetingFor("en", 18 * 60)).toBe("Good evening");
+    expect(greetingFor("en", 23 * 60 + 59)).toBe("Good evening");
   });
 });

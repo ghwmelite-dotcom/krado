@@ -6,12 +6,13 @@ import {
   canTransition,
   formatGHS,
   accraDateOf,
+  t,
   type BookingStatus,
 } from "@krado/shared";
 import type { AppEnv, Bindings } from "../env";
 import { requireSession } from "../middleware/session";
 import { refundTransaction, hmacSha512Hex } from "../lib/paystack";
-import { enqueueTemplate } from "../lib/messaging";
+import { notify } from "../lib/messaging";
 
 export const bookings = new Hono<AppEnv>();
 
@@ -147,17 +148,20 @@ async function refundDeposit(env: Bindings, booking: BookingRow): Promise<void> 
     env.DB.prepare("SELECT shop_name, language FROM artisans WHERE id = ?")
       .bind(booking.artisan_id)
       .first<{ shop_name: string; language: "en" | "tw" }>(),
-    env.DB.prepare("SELECT phone FROM clients WHERE id = ?")
+    env.DB.prepare("SELECT telegram_chat_id FROM clients WHERE id = ?")
       .bind(booking.client_id)
-      .first<{ phone: string }>(),
+      .first<{ telegram_chat_id: string | null }>(),
   ]);
   if (!artisan || !client) return;
 
-  await enqueueTemplate(env, {
-    template: "wa_refund_notice",
-    language: artisan.language,
-    recipient: client.phone,
-    params: [artisan.shop_name, booking.service_name, formatGHS(booking.deposit)],
+  await notify(env, {
+    chatId: client.telegram_chat_id,
+    type: "tg_refund_notice",
+    text: t(artisan.language, "tg_refund_notice", {
+      shop: artisan.shop_name,
+      service: booking.service_name,
+      deposit: formatGHS(booking.deposit),
+    }),
     booking_id: booking.id,
   });
 }

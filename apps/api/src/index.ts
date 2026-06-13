@@ -8,7 +8,7 @@ import { bookingPublic } from "./routes/booking-public";
 import { bookingPay } from "./routes/booking-pay";
 import { paystackWebhook } from "./routes/webhooks-paystack";
 import { bookings } from "./routes/bookings";
-import { whatsappWebhook } from "./routes/webhooks-whatsapp";
+import { telegramWebhook } from "./routes/webhooks-telegram";
 import { manualStart, manualClaims } from "./routes/manual-payments";
 import { nudges } from "./routes/nudges";
 import { dashboard } from "./routes/dashboard";
@@ -39,7 +39,7 @@ app.get("/app/*", async (c) => {
 // Registered last: /:handle catches everything that isn't /api, /media or a static asset.
 app.route("/", publicPage);
 app.route("/api/webhooks/paystack", paystackWebhook);
-app.route("/api/webhooks/whatsapp", whatsappWebhook);
+app.route("/api/webhooks/telegram", telegramWebhook);
 
 app.onError((err, c) => {
   console.error("unhandled", { path: c.req.path, message: (err as Error).message });

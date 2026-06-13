@@ -7,7 +7,7 @@ const payload = {
   shop_name: "Kojo's Cuts",
   area: "Madina, Accra",
   phone: "0244111222",
-  momo_number: "0244111222",
+  pin: "4321",
   services: [
     { name: "Low fade", price: 4000, duration_min: 45 },
     { name: "Trim", price: 2500, duration_min: 30 },
@@ -32,11 +32,21 @@ describe("POST /api/onboard", () => {
       link: string;
       token: string;
       share_message: string;
+      telegram_link: string;
     };
     expect(body.handle).toBe("kojos-cuts");
     expect(body.link).toContain("/kojos-cuts");
     expect(body.share_message).toContain(body.link);
     expect(body.token.length).toBeGreaterThan(20);
+    expect(body.telegram_link).toContain("t.me/");
+
+    // PIN is stored hashed, never plaintext
+    const stored = await env.DB.prepare(
+      "SELECT pin_hash, pin_salt, momo_number, phone FROM artisans WHERE handle = 'kojos-cuts'",
+    ).first<{ pin_hash: string; pin_salt: string; momo_number: string; phone: string }>();
+    expect(stored?.pin_hash).toBeTruthy();
+    expect(stored?.pin_hash).not.toContain("4321");
+    expect(stored?.momo_number).toBe(stored?.phone); // defaulted to login phone
 
     const services = await env.DB.prepare(
       "SELECT name, price FROM services WHERE artisan_id = (SELECT id FROM artisans WHERE handle = 'kojos-cuts') ORDER BY position",

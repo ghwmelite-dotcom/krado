@@ -3,6 +3,8 @@ import { nanoid } from "nanoid";
 import { OnboardInput, t } from "@krado/shared";
 import type { AppEnv } from "../env";
 import { sessionKey, SESSION_TTL_SECONDS } from "../middleware/session";
+import { hashPin } from "../lib/pin";
+import { deepLink } from "../lib/telegram";
 
 export const onboard = new Hono<AppEnv>();
 
@@ -42,11 +44,14 @@ onboard.post("/", async (c) => {
 
   const artisanId = `art_${nanoid(12)}`;
   const language = input.language ?? "en";
+  // Most artisans use one line — default the MoMo number to the login phone.
+  const momoNumber = input.momo_number ?? input.phone;
+  const { hash, salt } = await hashPin(input.pin);
 
   const stmts = [
     c.env.DB.prepare(
-      `INSERT INTO artisans (id, handle, name, shop_name, area, phone, momo_number, language, hours_json)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO artisans (id, handle, name, shop_name, area, phone, momo_number, language, hours_json, pin_hash, pin_salt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       artisanId,
       handle,
@@ -54,9 +59,11 @@ onboard.post("/", async (c) => {
       input.shop_name,
       input.area,
       input.phone,
-      input.momo_number,
+      momoNumber,
       language,
       JSON.stringify(input.hours),
+      hash,
+      salt,
     ),
     ...input.services.map((s, i) =>
       c.env.DB.prepare(
@@ -70,12 +77,19 @@ onboard.post("/", async (c) => {
   const token = crypto.randomUUID() + crypto.randomUUID().replaceAll("-", "");
   await c.env.KV.put(sessionKey(token), artisanId, { expirationTtl: SESSION_TTL_SECONDS });
 
+  // One-time deep-link token to connect the artisan's Telegram to the bot.
+  const tgToken = `a_${nanoid(18)}`;
+  await c.env.KV.put(`tglink:${tgToken}`, JSON.stringify({ kind: "artisan", artisan_id: artisanId }), {
+    expirationTtl: 60 * 60 * 24 * 30,
+  });
+
   const link = `${c.env.APP_BASE_URL}/${handle}`;
   return c.json(
     {
       handle,
       link,
       token,
+      telegram_link: deepLink(c.env, tgToken),
       share_message: t(language, "onboard_share_message", { shop: input.shop_name, link }),
     },
     201,

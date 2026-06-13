@@ -32,16 +32,16 @@ describe("NudgeCard", () => {
     expect(onLater).toHaveBeenCalledTimes(1);
   });
 
-  it("renders the Later label in Twi when lang is tw", () => {
+  it("resolves the Later label from the lang table (tw falls back to English for now)", () => {
     render(
       <NudgeCard
-        insight="Yaw taa ba nnafua 14 biara"
-        actionLabel="Soma nudge"
+        insight="Yaw is usually back every 14 days"
+        actionLabel="Send rebook nudge"
         onAction={() => {}}
         onLater={() => {}}
         lang="tw"
       />,
     );
-    expect(screen.getByRole("button", { name: "Akyiri yi" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Later" })).toBeDefined();
   });
 });

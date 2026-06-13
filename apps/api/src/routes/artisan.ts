@@ -3,10 +3,22 @@ import { nanoid } from "nanoid";
 import { ArtisanPatch, ServiceInput } from "@krado/shared";
 import type { AppEnv } from "../env";
 import { requireSession } from "../middleware/session";
+import { deepLink } from "../lib/telegram";
 
 export const artisan = new Hono<AppEnv>();
 
 artisan.use("*", requireSession);
+
+/** Mint a fresh deep link to (re)connect the artisan's Telegram to the bot. */
+artisan.post("/telegram-link", async (c) => {
+  const tgToken = `a_${nanoid(18)}`;
+  await c.env.KV.put(
+    `tglink:${tgToken}`,
+    JSON.stringify({ kind: "artisan", artisan_id: c.var.artisanId }),
+    { expirationTtl: 60 * 60 * 24 * 30 },
+  );
+  return c.json({ telegram_link: deepLink(c.env, tgToken) });
+});
 
 artisan.patch("/", async (c) => {
   const parsed = ArtisanPatch.safeParse(await c.req.json().catch(() => null));

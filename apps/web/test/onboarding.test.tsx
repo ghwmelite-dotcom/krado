@@ -29,7 +29,7 @@ describe("Onboarding wizard — the 2-minute invariant", () => {
     }
     expect(required.size).toBe(7);
     expect([...required].sort()).toEqual(
-      ["area", "hours", "momo_number", "name", "phone", "services", "shop_name"].sort(),
+      ["area", "hours", "name", "phone", "pin", "services", "shop_name"].sort(),
     );
   });
 

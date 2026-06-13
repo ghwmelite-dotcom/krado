@@ -51,13 +51,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  requestOtp: (phone: string) =>
-    request<{ ok: true }>("/api/auth/otp", { method: "POST", body: JSON.stringify({ phone }) }),
-
-  verifyOtp: (phone: string, code: string) =>
-    request<{ token: string }>("/api/auth/verify", {
+  login: (phone: string, pin: string) =>
+    request<{ token: string }>("/api/auth/login", {
       method: "POST",
-      body: JSON.stringify({ phone, code }),
+      body: JSON.stringify({ phone, pin }),
     }),
 
   me: () => request<{ artisan: Artisan }>("/api/me"),
@@ -126,6 +123,8 @@ export const api = {
 
   patchArtisan: (patch: z.input<typeof ArtisanPatch>) =>
     request<{ ok: true }>("/api/artisan", { method: "PATCH", body: JSON.stringify(patch) }),
+
+  telegramLink: () => request<{ telegram_link: string }>("/api/artisan/telegram-link", { method: "POST" }),
 
   nudges: () => request<{ nudges: NudgeRow[] }>("/api/nudges"),
 

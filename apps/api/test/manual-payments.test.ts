@@ -7,10 +7,10 @@ const TOKEN = "test-session-token-manual-1234567890";
 
 async function seed(acceptManual = 1) {
   await env.DB.prepare(
-    `INSERT OR IGNORE INTO artisans (id, handle, name, shop_name, area, phone, momo_number, hours_json, accept_manual, bank_details)
+    `INSERT OR IGNORE INTO artisans (id, handle, name, shop_name, area, phone, momo_number, hours_json, accept_manual, bank_details, telegram_chat_id)
      VALUES ('art_m', 'fiifi', 'Fiifi', 'Fiifi Fades', 'Kaneshie', '+233244000555', '+233554000555',
              '{"mon":[540,1020],"tue":[540,1020],"wed":[540,1020],"thu":[540,1020],"fri":[540,1020],"sat":null,"sun":null}',
-             ?, 'GCB · 1234567890 · Fiifi Mensah')`,
+             ?, 'GCB · 1234567890 · Fiifi Mensah', '880880')`,
   )
     .bind(acceptManual)
     .run();
@@ -98,11 +98,11 @@ describe("manual payments (direct MoMo / bank transfer)", () => {
     ).first();
     expect(payment).toMatchObject({ provider: "manual", channel: "momo", amount: 1000, status: "success" });
 
-    // Confirmations still go out
+    // Artisan (linked Telegram) gets a confirmation; client hasn't linked.
     const msgs = await env.DB.prepare(
-      "SELECT COUNT(*) AS n FROM message_log WHERE template LIKE 'wa_booking_confirmed%'",
+      "SELECT COUNT(*) AS n FROM message_log WHERE template LIKE 'tg_booking_confirmed%'",
     ).first<{ n: number }>();
-    expect(msgs!.n).toBe(2);
+    expect(msgs!.n).toBe(1);
 
     // Confirm is one-shot
     expect((await claimAction(claim_id, "confirm")).status).toBe(409);

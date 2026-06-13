@@ -1,7 +1,7 @@
-import { accraDateOf, formatGHS } from "@krado/shared";
+import { accraDateOf, formatGHS, t } from "@krado/shared";
 import { nanoid } from "nanoid";
 import type { Bindings } from "../env";
-import { enqueueTemplate } from "../lib/messaging";
+import { notify } from "../lib/messaging";
 
 /**
  * Nightly (21:00 UTC) backstop: any completed booking from today that is
@@ -40,20 +40,19 @@ export async function susuSweep(env: Bindings): Promise<void> {
 async function sendWeeklySummaries(env: Bindings, today: string): Promise<void> {
   const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
   const { results } = await env.DB.prepare(
-    `SELECT s.artisan_id, SUM(s.amount) AS total, COUNT(*) AS n, a.phone, a.language
+    `SELECT s.artisan_id, SUM(s.amount) AS total, COUNT(*) AS n, a.telegram_chat_id AS chat_id, a.language
      FROM susu_ledger s JOIN artisans a ON a.id = s.artisan_id
      WHERE s.day > ? AND s.day <= ?
      GROUP BY s.artisan_id`,
   )
     .bind(weekAgo, today)
-    .all<{ artisan_id: string; total: number; n: number; phone: string; language: "en" | "tw" }>();
+    .all<{ artisan_id: string; total: number; n: number; chat_id: string | null; language: "en" | "tw" }>();
 
   for (const r of results) {
-    await enqueueTemplate(env, {
-      template: "wa_weekly_susu",
-      language: r.language,
-      recipient: r.phone,
-      params: [formatGHS(r.total), String(r.n)],
+    await notify(env, {
+      chatId: r.chat_id,
+      type: "tg_weekly_susu",
+      text: t(r.language, "tg_weekly_susu", { amount: formatGHS(r.total), count: String(r.n) }),
     });
   }
 }

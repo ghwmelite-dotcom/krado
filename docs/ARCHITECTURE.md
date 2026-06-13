@@ -1,5 +1,14 @@
 # ARCHITECTURE — Krado v1
 
+> **v1.1 change (2026-06-13):** Auth and messaging were simplified after the
+> original spec. **Auth is now phone + 4-digit PIN** (PBKDF2-hashed) — no
+> WhatsApp OTP. **Messaging is now Telegram** (Bot API) instead of WhatsApp:
+> no Meta template approval, free-form messages. Telegram can only reach users
+> who tap Start on the bot, so artisans link during onboarding and **clients
+> opt in** via a deep link after locking a slot (they always see the on-screen
+> confirmation regardless). Sections below that reference WhatsApp/OTP are
+> superseded by this note; the code in `apps/api` is the source of truth.
+
 ## Stack map
 
 ```

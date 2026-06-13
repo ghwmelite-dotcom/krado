@@ -46,15 +46,17 @@ export const en = {
   nudge_send: "Send rebook nudge",
   nudge_later: "Later",
 
-  // WhatsApp template bodies (submitted to Meta; placeholders = {{n}})
-  wa_booking_confirmed_client:
-    "Your slot at {{1}} is locked for {{2}}. Deposit {{3}} received — {{4}} due at the shop. See you there!",
-  wa_booking_confirmed_artisan: "New booking: {{1}}, {{2}} — {{3}}. Deposit {{4}} locked in.",
-  wa_reminder_2h: "Reminder: your {{1}} appointment at {{2}} is at {{3}} today. Running late? Reply here.",
-  wa_rebook_nudge: "Hi {{1}}, it's about time for your next cut at {{2}}. Book your slot: {{3}}",
-  wa_refund_notice: "{{1}} had to cancel your {{2}} booking. Your {{3}} deposit is being refunded to your MoMo.",
-  wa_otp: "Your Krado login code is {{1}}. It expires in 10 minutes.",
-  wa_weekly_susu: "Susu this week: {{1}} set aside across {{2}} bookings. Keep going!",
+  // Telegram messages (free-form text, {named} placeholders)
+  tg_booking_confirmed_client:
+    "Your slot at {shop} is locked for {time}. Deposit {deposit} received — {balance} due at the shop. See you there!",
+  tg_booking_confirmed_artisan: "New booking: {client}, {service} — {time}. Deposit {deposit} locked in.",
+  tg_reminder_2h: "Reminder: your {service} at {shop} is at {time} today. See you soon!",
+  tg_rebook_nudge: "Hi {client}, it's about time for your next visit at {shop}. Book your slot: {link}",
+  tg_refund_notice: "{shop} had to cancel your {service} booking. Your {deposit} deposit is being refunded to your MoMo.",
+  tg_weekly_susu: "Susu this week: {amount} set aside across {count} bookings. Keep going!",
+  tg_artisan_linked: "You're connected, {name}. New bookings and your daily money will land right here.",
+  tg_client_linked: "All set — you'll get your booking reminders for {shop} here.",
+  tg_start_help: "Open your Krado booking link to lock a slot, or set up your shop at {base}.",
 
   // onboarding
   onboard_title: "Set up your shop",
@@ -66,9 +68,8 @@ export const en = {
     "Book your next cut at {shop} — pick your style, lock your slot with a small MoMo deposit. {link}",
 
   // auth
-  login_title: "Log in with your phone",
-  login_code_sent: "We sent a 6-digit code to your WhatsApp.",
-  login_invalid_code: "That code didn't match. Try again.",
+  login_title: "Log in",
+  login_wrong_pin: "Wrong phone or PIN. Try again.",
 
   // generic
   cancel_booking: "Cancel booking",
@@ -89,16 +90,19 @@ export const en = {
 
   // auth (artisan PWA)
   login_phone_label: "Phone number",
-  login_send_code: "Send code",
-  login_code_label: "6-digit code",
+  login_pin_label: "4-digit PIN",
   login_verify: "Log in",
   login_new_shop: "New to Krado? Set up your shop",
+  field_pin: "Choose a 4-digit PIN",
+  field_pin_hint: "You'll use your phone and this PIN to log in. Like your MoMo PIN.",
+  field_momo_same: "My MoMo number is the same as my phone",
+  field_momo_different: "Use a different MoMo number",
 
   // onboarding wizard
   field_name: "Your name",
   field_shop_name: "Shop name",
   field_area: "Area",
-  field_phone: "WhatsApp number",
+  field_phone: "Phone number",
   field_momo: "MoMo number",
   service_name: "Service name",
   service_price: "Price (GHS)",
@@ -161,6 +165,16 @@ export const en = {
   accept_manual_label: "Accept manual payments",
   bank_details_label: "Bank or wallet details",
   saved: "Saved",
+
+  // Telegram linking
+  tg_connect_title: "Get booking alerts on Telegram",
+  tg_connect_artisan: "Connect Telegram so new bookings and your daily money reach you instantly.",
+  tg_connect_client: "Get updates on Telegram",
+  tg_connect_client_sub: "Tap to get your confirmation and a reminder before your appointment.",
+  tg_connect_button: "Open Telegram",
+  tg_connected: "Telegram connected",
+  slot_locked_title: "Slot locked",
+  slot_locked_body: "Your deposit is in and your slot is locked.",
 } as const;
 
 export type MessageKey = keyof typeof en;

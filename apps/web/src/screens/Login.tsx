@@ -8,34 +8,18 @@ import { useLang } from "../lang";
 export function Login() {
   const { lang, setLang } = useLang();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState<"phone" | "code">("phone");
   const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
+  const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function sendCode(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
-      await api.requestOtp(phone);
-      setPhase("code");
-    } catch {
-      setError(t(lang, "error_generic"));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function verify(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const { token } = await api.verifyOtp(phone, code);
+      const { token } = await api.login(phone, pin);
       setToken(token);
-      // Pick up the artisan's saved language so the dashboard greets right.
       try {
         const { artisan } = await api.me();
         if (artisan.language) setLang(artisan.language);
@@ -44,7 +28,7 @@ export function Login() {
       }
       navigate("/", { replace: true });
     } catch {
-      setError(t(lang, "login_invalid_code"));
+      setError(t(lang, "login_wrong_pin"));
     } finally {
       setBusy(false);
     }
@@ -67,46 +51,38 @@ export function Login() {
         </div>
         <h1>{t(lang, "login_title")}</h1>
 
-        {phase === "phone" ? (
-          <form onSubmit={sendCode} className="onboard-step auth-card">
-            <label className="field">
-              <span className="field__label">{t(lang, "login_phone_label")}</span>
-              <input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="024 123 4567"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-            </label>
-            <MoMoButton type="submit" disabled={busy || phone.trim().length < 9}>
-              {t(lang, "login_send_code")}
-            </MoMoButton>
-          </form>
-        ) : (
-          <form onSubmit={verify} className="onboard-step auth-card">
-            <p className="auth-card__note">{t(lang, "login_code_sent")}</p>
-            <label className="field">
-              <span className="field__label">{t(lang, "login_code_label")}</span>
-              <input
-                className="code-input"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="\d{6}"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                required
-              />
-            </label>
-            <MoMoButton type="submit" disabled={busy || code.length !== 6}>
-              {t(lang, "login_verify")}
-            </MoMoButton>
-          </form>
-        )}
+        <form onSubmit={submit} className="onboard-step auth-card">
+          <label className="field">
+            <span className="field__label">{t(lang, "login_phone_label")}</span>
+            <input
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="024 123 4567"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </label>
+          <label className="field">
+            <span className="field__label">{t(lang, "login_pin_label")}</span>
+            <input
+              className="code-input"
+              type="password"
+              inputMode="numeric"
+              autoComplete="current-password"
+              pattern="\d{4}"
+              maxLength={4}
+              placeholder="••••"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+              required
+            />
+          </label>
+          <MoMoButton type="submit" disabled={busy || phone.trim().length < 9 || pin.length !== 4}>
+            {t(lang, "login_verify")}
+          </MoMoButton>
+        </form>
 
         {error && <p className="form-error">{error}</p>}
 

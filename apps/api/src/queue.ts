@@ -1,14 +1,14 @@
 import type { Bindings, QueueMessage } from "./env";
 
-/** Queue consumer — WhatsApp sender lands in the messaging task. */
+/** Queue consumer — delivers Telegram messages with retry/backoff. */
 export async function consumeMessages(batch: MessageBatch<QueueMessage>, env: Bindings): Promise<void> {
-  const { deliverTemplate } = await import("./lib/whatsapp");
+  const { deliverQueued } = await import("./lib/telegram");
   for (const msg of batch.messages) {
     try {
-      await deliverTemplate(msg.body, env);
+      await deliverQueued(msg.body, env);
       msg.ack();
     } catch (err) {
-      console.error("queue delivery failed", { template: msg.body.template, err: (err as Error).message });
+      console.error("queue delivery failed", { chat: msg.body.chat_id, err: (err as Error).message });
       msg.retry({ delaySeconds: 30 * (msg.attempts + 1) });
     }
   }

@@ -320,6 +320,43 @@ h3 {
   font-weight: var(--krado-weight-medium);
 }
 
+.field__hint {
+  font-size: var(--krado-text-floor);
+  color: var(--krado-muted, #6b6b63);
+  opacity: 0.85;
+}
+
+/* Telegram connect CTA (onboarding done, settings) */
+.tg-connect {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--krado-radius-lg);
+  background: #e7f1fb;
+  color: #1b5e91;
+  text-decoration: none;
+}
+.tg-connect svg {
+  flex-shrink: 0;
+  color: #229ed9;
+}
+.tg-connect b {
+  display: block;
+  font-size: 14px;
+  font-weight: var(--krado-weight-medium);
+}
+.tg-connect small {
+  display: block;
+  font-size: 11.5px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.tg-connect--done {
+  background: var(--krado-forest-50);
+  color: var(--krado-forest-900);
+}
+
 .field input[type="text"],
 .field input[type="tel"],
 .field input[type="number"],

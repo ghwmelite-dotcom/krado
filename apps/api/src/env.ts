@@ -5,26 +5,23 @@ export interface Bindings {
   MESSAGES: Queue<QueueMessage>;
   ASSETS?: Fetcher;
   APP_BASE_URL: string;
+  TELEGRAM_BOT_USERNAME: string; // for building t.me deep links (no @)
 
   // Secrets — set via `wrangler secret put`, absent in some local/dev modes
   PAYSTACK_SECRET_KEY?: string;
   PAYSTACK_WEBHOOK_SECRET?: string;
-  WA_ACCESS_TOKEN?: string;
-  WA_PHONE_NUMBER_ID?: string;
-  WA_VERIFY_TOKEN?: string;
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_WEBHOOK_SECRET?: string;
   SESSION_SIGNING_KEY?: string;
 }
 
-/** A queued outbound WhatsApp template send. */
+/** A queued outbound Telegram message — text is fully rendered at enqueue time. */
 export interface QueueMessage {
-  kind: "whatsapp_template";
-  template: string;
-  language: "en" | "tw";
-  recipient: string; // E.164
-  /** Positional template params ({{1}}, {{2}}, …) */
-  params: string[];
+  kind: "telegram";
+  chat_id: string;
+  text: string;
   booking_id?: string;
-  /** message_log row created at enqueue time; consumer updates it */
+  /** message_log row created at enqueue time; consumer updates its status */
   log_id?: string;
 }
 

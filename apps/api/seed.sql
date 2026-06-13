@@ -1,14 +1,17 @@
 -- Demo artisan "Kojo's Cuts" (Madina) for local dev and livestream demos.
 -- Money in pesewas. Run: npm run db:seed
+-- Login: phone 0244123456, PIN 1234 (hash below is PBKDF2-SHA256, 100k iters).
 
 INSERT OR REPLACE INTO artisans
   (id, handle, name, shop_name, area, phone, momo_number, language, daily_goal,
-   deposit_pct, deposit_floor, susu_mode, susu_value, hours_json, accept_manual, bank_details)
+   deposit_pct, deposit_floor, susu_mode, susu_value, hours_json, accept_manual, bank_details,
+   pin_hash, pin_salt)
 VALUES
   ('art_demo_kojo', 'kojo', 'Kojo Mensah', 'Kojo''s Cuts', 'Madina, Accra',
    '+233244123456', '+233244123456', 'en', 20000, 25, 500, 'flat', 500,
    '{"mon":[540,1080],"tue":[540,1080],"wed":[540,1080],"thu":[540,1080],"fri":[540,1140],"sat":[480,1140],"sun":null}',
-   1, 'GCB · 1234567890 · Kojo Mensah');
+   1, 'GCB · 1234567890 · Kojo Mensah',
+   'Rv7Re9EJpFpw5fMvAuko010TDVVznlWJ6bz/izIXrYE=', '8AI415Qndm1n3xnrpTDqug==');
 
 INSERT OR REPLACE INTO services (id, artisan_id, name, price, duration_min, position) VALUES
   ('svc_demo_fade',   'art_demo_kojo', 'Low fade',        4000, 45, 0),

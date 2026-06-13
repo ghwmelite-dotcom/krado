@@ -1,8 +1,8 @@
 import { nanoid } from "nanoid";
-import { formatGHS, minutesToLabel, slotToUtcIso } from "@krado/shared";
+import { formatGHS, minutesToLabel, slotToUtcIso, t } from "@krado/shared";
 import type { Bindings } from "../env";
 import { deleteHold, type HoldRecord } from "./holds";
-import { enqueueTemplate } from "./messaging";
+import { notify } from "./messaging";
 
 export interface PaymentInfo {
   provider: "paystack" | "manual";
@@ -18,11 +18,11 @@ export interface PaymentInfo {
  */
 export async function lockBooking(env: Bindings, hold: HoldRecord, payment: PaymentInfo): Promise<string> {
   // Phone-first client upsert
-  let client = await env.DB.prepare("SELECT id FROM clients WHERE phone = ?")
+  let client = await env.DB.prepare("SELECT id, telegram_chat_id FROM clients WHERE phone = ?")
     .bind(hold.phone)
-    .first<{ id: string }>();
+    .first<{ id: string; telegram_chat_id: string | null }>();
   if (!client) {
-    client = { id: `cl_${nanoid(12)}` };
+    client = { id: `cl_${nanoid(12)}`, telegram_chat_id: null };
     await env.DB.prepare("INSERT INTO clients (id, phone, name) VALUES (?, ?, ?)")
       .bind(client.id, hold.phone, hold.client_name ?? null)
       .run();
@@ -66,26 +66,38 @@ export async function lockBooking(env: Bindings, hold: HoldRecord, payment: Paym
 
   await deleteHold(env, hold);
 
-  const artisan = await env.DB.prepare("SELECT shop_name, phone, language FROM artisans WHERE id = ?")
+  const artisan = await env.DB.prepare(
+    "SELECT shop_name, language, telegram_chat_id FROM artisans WHERE id = ?",
+  )
     .bind(hold.artisan_id)
-    .first<{ shop_name: string; phone: string; language: "en" | "tw" }>();
+    .first<{ shop_name: string; language: "en" | "tw"; telegram_chat_id: string | null }>();
   if (!artisan) return bookingId;
 
   const timeLabel = `${hold.date} ${minutesToLabel(hold.slot)}`;
   const balance = hold.price - hold.deposit;
 
-  await enqueueTemplate(env, {
-    template: "wa_booking_confirmed_client",
-    language: artisan.language,
-    recipient: hold.phone,
-    params: [artisan.shop_name, timeLabel, formatGHS(hold.deposit), formatGHS(balance)],
+  // Client gets a confirmation only if they've linked Telegram (opt-in);
+  // they always saw the on-screen confirmation on the booking page.
+  await notify(env, {
+    chatId: client.telegram_chat_id,
+    type: "tg_booking_confirmed_client",
+    text: t(artisan.language, "tg_booking_confirmed_client", {
+      shop: artisan.shop_name,
+      time: timeLabel,
+      deposit: formatGHS(hold.deposit),
+      balance: formatGHS(balance),
+    }),
     booking_id: bookingId,
   });
-  await enqueueTemplate(env, {
-    template: "wa_booking_confirmed_artisan",
-    language: artisan.language,
-    recipient: artisan.phone,
-    params: [hold.client_name ?? hold.phone, hold.service_name, timeLabel, formatGHS(hold.deposit)],
+  await notify(env, {
+    chatId: artisan.telegram_chat_id,
+    type: "tg_booking_confirmed_artisan",
+    text: t(artisan.language, "tg_booking_confirmed_artisan", {
+      client: hold.client_name ?? hold.phone,
+      service: hold.service_name,
+      time: timeLabel,
+      deposit: formatGHS(hold.deposit),
+    }),
     booking_id: bookingId,
   });
   return bookingId;

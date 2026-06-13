@@ -37,16 +37,22 @@ export const ServiceInput = z.object({
   duration_min: z.number().int().min(10).max(480),
 });
 
+/** 4-digit login PIN — the MoMo mental model, never stored in plaintext. */
+export const Pin = z.string().regex(/^\d{4}$/, "PIN must be 4 digits");
+
 /**
  * The 2-minute onboarding invariant: ≤ 7 required fields, ≤ 3 steps.
- * Required: name, shop_name, area, phone, momo_number, services, hours.
+ * Required: name, shop_name, area, phone, pin, services, hours.
+ * The MoMo number defaults to the login phone (most artisans use one line);
+ * it is only sent when it differs, so it does not count against the 7.
  */
 export const OnboardInput = z.object({
   name: z.string().min(1).max(80),
   shop_name: z.string().min(1).max(80),
   area: z.string().min(1).max(80),
   phone: Phone,
-  momo_number: Phone,
+  pin: Pin,
+  momo_number: Phone.optional(),
   services: z.array(ServiceInput).min(2).max(12),
   hours: HoursJson,
   language: z.enum(["en", "tw"]).optional(),
@@ -79,8 +85,7 @@ export const NudgeAction = z.object({
   action: z.enum(["send", "dismiss"]),
 });
 
-export const OtpRequest = z.object({ phone: Phone });
-export const OtpVerify = z.object({ phone: Phone, code: z.string().regex(/^\d{6}$/) });
+export const LoginInput = z.object({ phone: Phone, pin: Pin });
 
 export const ArtisanPatch = z
   .object({

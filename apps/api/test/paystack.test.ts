@@ -12,9 +12,9 @@ beforeAll(() => {
 
 async function seed() {
   await env.DB.prepare(
-    `INSERT OR IGNORE INTO artisans (id, handle, name, shop_name, area, phone, momo_number, hours_json)
+    `INSERT OR IGNORE INTO artisans (id, handle, name, shop_name, area, phone, momo_number, hours_json, telegram_chat_id)
      VALUES ('art_p', 'ama', 'Ama', 'Ama Braids', 'Osu', '+233244000222', '+233244000222',
-             '{"mon":[540,1020],"tue":[540,1020],"wed":[540,1020],"thu":[540,1020],"fri":[540,1020],"sat":null,"sun":null}')`,
+             '{"mon":[540,1020],"tue":[540,1020],"wed":[540,1020],"thu":[540,1020],"fri":[540,1020],"sat":null,"sun":null}', '900900')`,
   ).run();
   await env.DB.prepare(
     `INSERT OR IGNORE INTO services (id, artisan_id, name, price, duration_min, position)
@@ -131,14 +131,14 @@ describe("POST /api/webhooks/paystack", () => {
     const client = await env.DB.prepare("SELECT phone FROM clients WHERE phone = '+233240000011'").first();
     expect(client).not.toBeNull();
 
-    // Confirmations queued to both parties
+    // Telegram is opt-in: the artisan linked their bot (chat 900900) so they
+    // get a confirmation; the client hasn't linked, so no client message.
     const msgs = await env.DB.prepare("SELECT template, recipient FROM message_log ORDER BY template").all<{
       template: string;
+      recipient: string;
     }>();
-    expect(msgs.results.map((m) => m.template)).toEqual([
-      "wa_booking_confirmed_artisan",
-      "wa_booking_confirmed_client",
-    ]);
+    expect(msgs.results.map((m) => m.template)).toEqual(["tg_booking_confirmed_artisan"]);
+    expect(msgs.results[0]!.recipient).toBe("900900");
 
     // Hold consumed
     const again = await app.request(`/api/bookings/${holdToken}/pay`, { method: "POST" }, env);

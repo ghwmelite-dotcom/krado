@@ -1,8 +1,10 @@
 import { Hono } from "hono";
+import { nanoid } from "nanoid";
 import { HoldInput, depositFor } from "@krado/shared";
 import type { AppEnv } from "../env";
 import { availableSlots } from "../lib/availability";
 import { createHold } from "../lib/holds";
+import { deepLink } from "../lib/telegram";
 
 export const bookingPublic = new Hono<AppEnv>();
 
@@ -121,8 +123,22 @@ bookingPublic.post("/:handle/hold", async (c) => {
   }
 
   const { hold } = result;
+
+  // Opt-in Telegram: a deep-link the client can tap to get their confirmation
+  // and reminder. Keyed by phone so it works regardless of payment timing.
+  const tgToken = `c_${nanoid(18)}`;
+  await c.env.KV.put(`tglink:${tgToken}`, JSON.stringify({ kind: "client", phone: hold.phone }), {
+    expirationTtl: 60 * 60 * 24,
+  });
+
   return c.json(
-    { hold_token: hold.token, deposit: hold.deposit, price: hold.price, expires_at: hold.expires_at },
+    {
+      hold_token: hold.token,
+      deposit: hold.deposit,
+      price: hold.price,
+      expires_at: hold.expires_at,
+      telegram_link: deepLink(c.env, tgToken),
+    },
     201,
   );
 });
