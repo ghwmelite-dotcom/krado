@@ -33,6 +33,14 @@ const FONTS = (
   </>
 );
 
+const ICONS = (
+  <>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/app/icons/icon-180.png" />
+    <meta name="theme-color" content="#04342C" />
+  </>
+);
+
 const BASE_CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -246,6 +254,7 @@ publicPage.get("/", (c) => {
           content="Clients lock their slot with a small MoMo deposit. No-shows die. Your day's money and susu on one screen."
         />
         {FONTS}
+        {ICONS}
         <style dangerouslySetInnerHTML={{ __html: BASE_CSS + LANDING_CSS }} />
       </head>
       <body>
@@ -535,6 +544,7 @@ publicPage.get("/booked", (c) => {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>Krado — locked</title>
         {FONTS}
+        {ICONS}
         <style dangerouslySetInnerHTML={{ __html: BASE_CSS + BOOKING_CSS }} />
       </head>
       <body>
@@ -609,6 +619,7 @@ publicPage.get("/:handle", async (c) => {
           content={`Book your slot at ${artisan.shop_name}, ${artisan.area}. Lock it with a small MoMo deposit.`}
         />
         {FONTS}
+        {ICONS}
         <style dangerouslySetInnerHTML={{ __html: BASE_CSS + BOOKING_CSS }} />
       </head>
       <body>

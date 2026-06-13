@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { AppEnv, Bindings, QueueMessage } from "./env";
+import { FAVICON_SVG } from "./lib/brand";
 
 import { auth, me } from "./routes/auth";
 import { onboard } from "./routes/onboard";
@@ -18,6 +19,13 @@ import { media } from "./routes/media";
 const app = new Hono<AppEnv>();
 
 app.get("/api/health", (c) => c.json({ ok: true, service: "krado-api" }));
+
+app.get("/favicon.svg", (c) =>
+  c.body(FAVICON_SVG, 200, {
+    "content-type": "image/svg+xml",
+    "cache-control": "public, max-age=604800",
+  }),
+);
 app.route("/api/auth", auth);
 app.route("/api/me", me);
 app.route("/api/onboard", onboard);
