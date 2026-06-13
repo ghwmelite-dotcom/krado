@@ -180,6 +180,7 @@ export const en = {
   tg_connected: "Telegram connected",
   slot_locked_title: "Slot locked",
   slot_locked_body: "Your deposit is in and your slot is locked.",
+  book_subhead: "Lock your slot with a small deposit — pay the rest at the shop.",
 } as const;
 
 export type MessageKey = keyof typeof en;

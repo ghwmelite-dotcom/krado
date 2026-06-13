@@ -130,6 +130,26 @@ h1 em{font-style:italic;font-weight:500;color:var(--gold-600)}
 .susuline{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:13.5px;color:var(--forest-100)}
 .susuline .sq{width:10px;height:10px;border-radius:3px;background:var(--gold-200)}
 
+.benefits{padding:24px 0 8px}
+.benefits__title{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,3.6vw,40px);letter-spacing:-.02em;text-align:center;margin-bottom:32px}
+.benefits__title em{font-style:italic;font-weight:500;color:var(--gold-600)}
+.benefits__grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.bcard{border-radius:20px;padding:28px 26px;border:1px solid var(--line)}
+.bcard--shop{background:var(--forest-900);color:var(--forest-50);border-color:var(--forest-900)}
+.bcard--client{background:var(--paper);color:var(--ink)}
+.bcard__tag{display:inline-block;font-size:12px;font-weight:500;letter-spacing:.02em;padding:6px 12px;border-radius:999px;margin-bottom:18px}
+.bcard--shop .bcard__tag{background:rgba(159,225,203,.16);color:var(--forest-100)}
+.bcard--client .bcard__tag{background:var(--gold-100);color:var(--gold-900)}
+.bcard ul{list-style:none;display:flex;flex-direction:column;gap:16px}
+.bcard li{position:relative;padding-left:28px;font-size:15px;line-height:1.5}
+.bcard li::before{content:"";position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:50%;background-repeat:no-repeat;background-position:center;background-size:11px}
+.bcard--shop li{color:var(--forest-100)}
+.bcard--shop li b{color:#fff}
+.bcard--shop li::before{background-color:rgba(159,225,203,.18);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239FE1CB' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E")}
+.bcard--client li b{color:var(--ink)}
+.bcard--client li{color:var(--muted)}
+.bcard--client li::before{background-color:var(--gold-100);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23854F0B' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E")}
+@media (max-width:880px){.benefits__grid{grid-template-columns:1fr}}
 .final{text-align:center;padding:8px 0 80px}
 .final h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(30px,4vw,46px);letter-spacing:-.02em}
 .final p{color:var(--muted);margin-top:12px}
@@ -370,6 +390,48 @@ publicPage.get("/", (c) => {
             </div>
           </section>
 
+          <section class="benefits sr" id="benefits">
+            <h2 class="benefits__title">
+              Good for the shop. <em>Good for the client.</em>
+            </h2>
+            <div class="benefits__grid">
+              <div class="bcard bcard--shop">
+                <span class="bcard__tag">For the shop owner</span>
+                <ul>
+                  <li>
+                    <b>No more no-shows.</b> A deposit locks the chair — if they don't show, you keep it.
+                  </li>
+                  <li>
+                    <b>Your money on one screen.</b> The day's earnings, your goal, and susu set-aside, live.
+                  </li>
+                  <li>
+                    <b>Regulars come back.</b> Krado nudges them on their natural cycle — one tap to invite.
+                  </li>
+                  <li>
+                    <b>Paid by MoMo.</b> No card machine, no bank queue. Set up in two minutes on any phone.
+                  </li>
+                </ul>
+              </div>
+              <div class="bcard bcard--client">
+                <span class="bcard__tag">For the client</span>
+                <ul>
+                  <li>
+                    <b>Lock your slot in seconds.</b> No app to install, no account — just your phone.
+                  </li>
+                  <li>
+                    <b>Never lose your spot.</b> Your time is held the moment you pay the small deposit.
+                  </li>
+                  <li>
+                    <b>Pay small now, rest at the shop.</b> A little MoMo deposit counts toward your cut.
+                  </li>
+                  <li>
+                    <b>A reminder before you go.</b> So you arrive on time and your barber is ready.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           <section class="final sr">
             <h2>Your chair, always booked.</h2>
             <p>Onboard now — your booking link is live before your next client sits down.</p>
@@ -403,6 +465,7 @@ body{background:linear-gradient(180deg,#FBF9F3 0%,var(--mist) 30%)}
 header{padding:26px 0 14px}
 h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;letter-spacing:-.02em}
 .area{font-size:13px;color:var(--muted);margin-top:2px}
+.subhead{font-size:14px;color:var(--forest-900);background:var(--forest-50);border-radius:10px;padding:9px 12px;margin-top:12px}
 h2{font-weight:500;font-size:16px;margin:26px 0 12px}
 .stepper{display:flex;gap:8px;margin:14px 0 4px}
 .step{flex:1;text-align:center;font-size:12px;font-weight:500;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
@@ -554,6 +617,7 @@ publicPage.get("/:handle", async (c) => {
           <header>
             <h1>{artisan.shop_name}</h1>
             <p class="area">{artisan.area}</p>
+            <p class="subhead">{t(lang, "book_subhead")}</p>
           </header>
 
           <div class="stepper" id="stepper">
