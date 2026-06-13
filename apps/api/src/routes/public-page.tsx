@@ -64,6 +64,71 @@ function KenteStrip() {
   );
 }
 
+const LANDING_CSS = `
+.hero{padding:56px 0 32px}
+.hero .brand{font-family:'DM Sans',system-ui,sans-serif;font-weight:500;font-size:34px;letter-spacing:-.5px}
+.hero .tag{font-size:20px;margin-top:8px}
+.hero .sub{color:#6b6b66;margin-top:12px;max-width:38ch}
+.cta{display:flex;flex-direction:column;gap:12px;margin-top:28px;max-width:340px}
+.how{margin-top:40px;display:grid;gap:16px}
+.how .item{background:var(--paper);border:1px solid #e5e3dc;border-radius:14px;padding:16px}
+.how .n{display:inline-flex;width:28px;height:28px;border-radius:999px;background:var(--forest-50);color:var(--forest-900);align-items:center;justify-content:center;font-size:13px;font-weight:500;margin-bottom:8px}
+footer{margin-top:48px;padding:24px 0;color:#6b6b66;font-size:12px}
+`;
+
+publicPage.get("/", (c) => {
+  return c.html(
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Krado — bookings and daily money for Ghana's artisans</title>
+        <meta
+          name="description"
+          content="Clients lock their slot with a small MoMo deposit. No-shows die. Your day's money and susu on one screen."
+        />
+        <style>{CSS + LANDING_CSS}</style>
+      </head>
+      <body>
+        <KenteStrip />
+        <div class="wrap">
+          <div class="hero">
+            <div class="brand">Krado</div>
+            <p class="tag">Krado? Lock your slot.</p>
+            <p class="sub">
+              WhatsApp-first bookings for barbers, hairdressers and seamstresses. Clients pay a small
+              MoMo deposit to lock their slot — no-shows die, and your day's money shows on one screen.
+            </p>
+            <div class="cta">
+              <a class="paybtn" href="/app/onboarding" style="text-decoration:none">
+                Set up your shop — 2 minutes
+              </a>
+              <a class="paybtn alt" href="/app/" style="text-decoration:none">
+                Open your dashboard
+              </a>
+            </div>
+          </div>
+          <div class="how">
+            <div class="item">
+              <div class="n">1</div>
+              <div>Onboard in two minutes: your services, prices and hours. You get a booking link like <b>krado.app/kojo</b>.</div>
+            </div>
+            <div class="item">
+              <div class="n">2</div>
+              <div>Paste the link in your WhatsApp status and IG bio. Clients pick a style, pick a time, and lock it with a deposit.</div>
+            </div>
+            <div class="item">
+              <div class="n">3</div>
+              <div>The deposit counts toward the cut. No-show? You keep it. Your daily goal, earnings and susu set-aside live on one screen.</div>
+            </div>
+          </div>
+          <footer>Hodges &amp; Co. · OHWPStudios · Accra</footer>
+        </div>
+      </body>
+    </html>,
+  );
+});
+
 publicPage.get("/booked", (c) => {
   return c.html(
     <html lang="en">

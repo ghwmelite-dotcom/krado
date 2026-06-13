@@ -30,6 +30,14 @@ describe("SSR public booking page", () => {
     expect((await app.request("/api/health", {}, env)).status).toBe(200);
   });
 
+  test("root landing page renders with CTAs", async () => {
+    const res = await app.request("/", {}, env);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Lock your slot");
+    expect(html).toContain("/app/onboarding");
+  });
+
   test("booked confirmation page renders", async () => {
     const res = await app.request("/booked", {}, env);
     expect(res.status).toBe(200);
