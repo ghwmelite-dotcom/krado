@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { formatGHS, minutesToLabel, slotToUtcIso, t } from "@krado/shared";
+import { formatGHS, minutesToLabel, slotToUtcIso, splitDeposit, t } from "@krado/shared";
 import type { Bindings } from "../env";
 import { deleteHold, type HoldRecord } from "./holds";
 import { notify } from "./messaging";
@@ -35,10 +35,14 @@ export async function lockBooking(env: Bindings, hold: HoldRecord, payment: Paym
   const bookingId = `bk_${nanoid(12)}`;
   const startsAt = slotToUtcIso(hold.date, hold.slot);
 
+  // Phase-1 fee, absorbed into the deposit (0 when KRADO_FEE_PESEWAS unset).
+  // Recorded per booking; settlement (and the no-show waiver) comes with payouts.
+  const { krado_fee } = splitDeposit(hold.deposit, Number(env.KRADO_FEE_PESEWAS ?? "0") || 0);
+
   await env.DB.batch([
     env.DB.prepare(
-      `INSERT INTO bookings (id, artisan_id, client_id, service_id, service_name, price, duration_min, deposit, starts_at, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'locked')`,
+      `INSERT INTO bookings (id, artisan_id, client_id, service_id, service_name, price, duration_min, deposit, krado_fee, starts_at, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'locked')`,
     ).bind(
       bookingId,
       hold.artisan_id,
@@ -48,6 +52,7 @@ export async function lockBooking(env: Bindings, hold: HoldRecord, payment: Paym
       hold.price,
       hold.duration_min,
       hold.deposit,
+      krado_fee,
       startsAt,
     ),
     env.DB.prepare(
@@ -89,6 +94,11 @@ export async function lockBooking(env: Bindings, hold: HoldRecord, payment: Paym
     }),
     booking_id: bookingId,
   });
+  // "incl. GHS 1 Krado fee" only appears once the fee is switched on.
+  const depositText =
+    krado_fee > 0
+      ? `${formatGHS(hold.deposit)} (${t(artisan.language, "fee_note", { fee: formatGHS(krado_fee) })})`
+      : formatGHS(hold.deposit);
   await notify(env, {
     chatId: artisan.telegram_chat_id,
     type: "tg_booking_confirmed_artisan",
@@ -96,7 +106,7 @@ export async function lockBooking(env: Bindings, hold: HoldRecord, payment: Paym
       client: hold.client_name ?? hold.phone,
       service: hold.service_name,
       time: timeLabel,
-      deposit: formatGHS(hold.deposit),
+      deposit: depositText,
     }),
     booking_id: bookingId,
   });

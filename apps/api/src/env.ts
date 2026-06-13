@@ -6,6 +6,8 @@ export interface Bindings {
   ASSETS?: Fetcher;
   APP_BASE_URL: string;
   TELEGRAM_BOT_USERNAME: string; // for building t.me deep links (no @)
+  /** Krado per-booking fee in pesewas, absorbed into the deposit. "0" = off. */
+  KRADO_FEE_PESEWAS?: string;
 
   // Secrets — set via `wrangler secret put`, absent in some local/dev modes
   PAYSTACK_SECRET_KEY?: string;

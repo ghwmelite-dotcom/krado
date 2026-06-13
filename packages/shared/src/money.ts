@@ -25,3 +25,20 @@ export function depositFor(pricePesewas: number, pct: number, floorPesewas: numb
   const raw = Math.round((pricePesewas * pct) / 100);
   return Math.min(Math.max(raw, floorPesewas), pricePesewas);
 }
+
+/**
+ * The Krado per-booking fee is absorbed into the deposit: the client pays the
+ * same deposit, the fee is Krado's margin, the rest is the artisan's net. The
+ * fee never exceeds the deposit. feePesewas of 0 = off (no fee). See
+ * docs/MONETIZATION.md.
+ */
+export function splitDeposit(
+  depositPesewas: number,
+  feePesewas: number,
+): { krado_fee: number; artisan_net: number } {
+  if (!Number.isInteger(depositPesewas) || !Number.isInteger(feePesewas)) {
+    throw new Error("splitDeposit expects integer pesewas");
+  }
+  const fee = Math.min(Math.max(feePesewas, 0), depositPesewas);
+  return { krado_fee: fee, artisan_net: depositPesewas - fee };
+}

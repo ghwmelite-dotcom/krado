@@ -19,6 +19,8 @@ routes = [{ pattern = "krado.ohwpstudios.org", custom_domain = true }]
 [vars]
 APP_BASE_URL = "https://krado.ohwpstudios.org"
 TELEGRAM_BOT_USERNAME = "KradoBot"
+# Phase-1 monetization: GHS 1 = "100". "0" keeps the fee off (pilot default).
+KRADO_FEE_PESEWAS = "0"
 
 [assets]
 directory = "../web/dist"

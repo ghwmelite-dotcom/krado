@@ -140,6 +140,12 @@ describe("POST /api/webhooks/paystack", () => {
     expect(msgs.results.map((m) => m.template)).toEqual(["tg_booking_confirmed_artisan"]);
     expect(msgs.results[0]!.recipient).toBe("900900");
 
+    // Fee defaults off — recorded as 0 on the booking.
+    const fee = await env.DB.prepare("SELECT krado_fee FROM bookings WHERE artisan_id = 'art_p'").first<{
+      krado_fee: number;
+    }>();
+    expect(fee?.krado_fee).toBe(0);
+
     // Hold consumed
     const again = await app.request(`/api/bookings/${holdToken}/pay`, { method: "POST" }, env);
     expect(again.status).toBe(404);

@@ -181,6 +181,7 @@ export const en = {
   slot_locked_title: "Slot locked",
   slot_locked_body: "Your deposit is in and your slot is locked.",
   book_subhead: "Lock your slot with a small deposit — pay the rest at the shop.",
+  fee_note: "incl. {fee} Krado fee",
 
   // up-front trust badges (client booking page)
   trust_refund: "Refunded if the shop cancels",
