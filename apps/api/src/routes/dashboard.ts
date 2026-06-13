@@ -39,7 +39,7 @@ dashboard.get("/", requireSession, async (c) => {
         .first<{ v: number }>(),
       c.env.DB.prepare(
         `SELECT b.id, b.service_name, b.price, b.deposit, b.starts_at, b.status,
-                c.name AS client_name, c.phone AS client_phone
+                COALESCE(c.name, c.phone) AS client_name, c.phone AS client_phone
          FROM bookings b JOIN clients c ON c.id = b.client_id
          WHERE b.artisan_id = ? AND b.status = 'locked' AND b.starts_at >= ?
          ORDER BY b.starts_at LIMIT 8`,
@@ -47,7 +47,7 @@ dashboard.get("/", requireSession, async (c) => {
         .bind(artisanId, nowIso)
         .all(),
       c.env.DB.prepare(
-        `SELECT n.id, n.cycle_days, c.name AS client_name, c.phone AS client_phone
+        `SELECT n.id, n.cycle_days, COALESCE(c.name, c.phone) AS client_name, c.phone AS client_phone
          FROM nudges n JOIN clients c ON c.id = n.client_id
          WHERE n.artisan_id = ? AND n.status = 'pending' ORDER BY n.created_at LIMIT 1`,
       )

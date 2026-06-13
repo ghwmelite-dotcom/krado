@@ -38,7 +38,7 @@ bookings.get("/", requireSession, async (c) => {
 
   const { results } = await c.env.DB.prepare(
     `SELECT b.id, b.service_name, b.price, b.deposit, b.starts_at, b.status, b.source,
-            c.phone AS client_phone, c.name AS client_name
+            c.phone AS client_phone, COALESCE(c.name, c.phone) AS client_name
      FROM bookings b JOIN clients c ON c.id = b.client_id
      WHERE b.artisan_id = ? AND b.starts_at >= ? AND b.starts_at < ?
      ORDER BY b.starts_at`,

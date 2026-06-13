@@ -81,7 +81,7 @@ export function Dashboard() {
   }
 
   const minutesNow = accraMinutesOf(new Date().toISOString());
-  const firstName = data.artisan.name.split(/\s+/)[0] ?? data.artisan.name;
+  const firstName = (data.artisan.name ?? "").split(/\s+/)[0] || data.artisan.name || "";
   const nudge = data.pending_nudges[0];
 
   return (
